@@ -1,0 +1,16 @@
+{
+    "name": "devatmaliance/file_service",
+    "description": "file service",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": ">=7.4",
+        "aws/aws-sdk-php": "^3.226"
+    },
+    "autoload": {
+        "psr-4": {
+            "devatmaliance\\file_service\\": "src/"
+        }
+    }
+}
+
