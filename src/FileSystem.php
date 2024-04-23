@@ -2,8 +2,8 @@
 
 namespace devatmaliance\file_service;
 
-use devatmaliance\file_service\entity\File;
-use devatmaliance\file_service\entity\FilePath;
+use devatmaliance\file_service\file\File;
+use devatmaliance\file_service\file\FilePath;
 use devatmaliance\file_service\storage\Storage;
 use RuntimeException;
 use Yii;

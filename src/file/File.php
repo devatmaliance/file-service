@@ -1,6 +1,6 @@
 <?php
 
-namespace devatmaliance\file_service\entity;
+namespace devatmaliance\file_service\file;
 
 class File
 {

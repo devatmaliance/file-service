@@ -18,4 +18,16 @@ class FileUtility
     {
         return pathinfo($path, PATHINFO_DIRNAME);
     }
+
+    public static function generateRandomString(int $length): string
+    {
+        return substr(base64_encode(random_bytes($length)), 0, $length);
+    }
+
+    public function criticalSymbolClean(string $dirtyText): string
+    {
+        $regExp = '/[^a-zа-я.0-9_-]/ui';
+
+        return preg_replace($regExp, '', trim($dirtyText));
+    }
 }
