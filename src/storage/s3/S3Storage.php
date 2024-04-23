@@ -10,9 +10,9 @@ class S3Storage implements Storage
     private S3Client $client;
     private string $bucket;
 
-    public function __construct(S3Client $client, string $bucket)
+    public function __construct(array $config, string $bucket)
     {
-        $this->client = $client;
+        $this->client = new S3Client($config);
         $this->bucket = $bucket;
     }
 

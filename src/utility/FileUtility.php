@@ -24,7 +24,7 @@ class FileUtility
         return substr(base64_encode(random_bytes($length)), 0, $length);
     }
 
-    public function criticalSymbolClean(string $dirtyText): string
+    public static function criticalSymbolClean(string $dirtyText): string
     {
         $regExp = '/[^a-zа-я.0-9_-]/ui';
 
