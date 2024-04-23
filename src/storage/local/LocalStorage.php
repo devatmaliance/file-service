@@ -1,6 +1,6 @@
 <?php
 
-namespace devatmaliance\file_service\storage\s3;
+namespace devatmaliance\file_service\storage\local;
 
 use devatmaliance\file_service\storage\Storage;
 use Throwable;
