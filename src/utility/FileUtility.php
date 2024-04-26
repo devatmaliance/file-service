@@ -21,7 +21,17 @@ class FileUtility
 
     public static function generateRandomString(int $length): string
     {
-        return substr(base64_encode(random_bytes($length)), 0, $length);
+        $string = '';
+
+        while (($len = strlen($string)) < $length) {
+            $size = $length - $len;
+
+            $bytes = random_bytes($size);
+
+            $string .= substr(str_replace(['/', '+', '='], '', base64_encode($bytes)), 0, $size);
+        }
+
+        return $string;
     }
 
     public static function criticalSymbolClean(string $dirtyText): string

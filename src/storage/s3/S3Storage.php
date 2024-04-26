@@ -3,6 +3,10 @@
 namespace devatmaliance\file_service\storage\s3;
 
 use Aws\S3\S3Client;
+use devatmaliance\file_service\exception\FileReadException;
+use devatmaliance\file_service\file\File;
+use devatmaliance\file_service\file\FileContent;
+use devatmaliance\file_service\file\FilePath;
 use devatmaliance\file_service\storage\Storage;
 
 class S3Storage implements Storage
@@ -16,15 +20,32 @@ class S3Storage implements Storage
         $this->bucket = $bucket;
     }
 
-    public function write(string $path, string $content): string
+    public function write(File $file): FilePath
     {
         $result = $this->client->putObject([
             'Bucket' => $this->bucket,
-            'Key' => $path,
-            'Body' => $content,
+            'Key' => $file->getPath(),
+            'Body' => $file->getContent(),
             'ACL' => 'public-read',
         ]);
 
-        return $result['ObjectURL'];
+        return FilePath::fromPath($result['ObjectURL']);
     }
+
+    public function read(FilePath $path): File
+    {
+        $filePath = $path->get();
+        $result = $this->client->getObject([
+            'Bucket' => $this->bucket,
+            'Key' => $filePath,
+        ]);
+
+        $content = $result['Body']->getContents();
+        if (!is_string($content)) {
+            throw new FileReadException('Failed to read file: ' . $filePath);
+        }
+
+        return new File(new FileContent($content), $path);
+    }
+
 }

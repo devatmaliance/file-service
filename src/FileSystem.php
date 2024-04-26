@@ -22,13 +22,13 @@ class FileSystem
     public function write(File $file): FilePath
     {
         try {
-            return FilePath::fromPath($this->mainStorage->write($file->getPath(), $file->getContent()));
+            return $this->mainStorage->write($file);
         } catch (\Throwable $exception) {
             Yii::error($exception->getMessage(), 'fileService-main');
         }
 
         try {
-            return FilePath::fromPath($this->backupStorage->write($file->getPath(), $file->getContent()));
+            return $this->backupStorage->write($file);
         } catch (\Throwable $exception) {
             Yii::error($exception->getMessage(), 'fileService-backup');
         }
