@@ -10,4 +10,6 @@ interface Storage
     public function write(File $file): FilePath;
 
     public function read(FilePath $path): File;
+
+    public function checkAvailability(): bool;
 }

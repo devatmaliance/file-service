@@ -48,4 +48,13 @@ class S3Storage implements Storage
         return new File(new FileContent($content), $path);
     }
 
+    public function checkAvailability(): bool
+    {
+        try {
+            $this->client->listBuckets();
+            return true;
+        } catch (\Throwable $e) {
+            return false;
+        }
+    }
 }

@@ -43,4 +43,9 @@ class LocalStorage implements Storage
 
         return new File(new FileContent($content), $path);
     }
+
+    public function checkAvailability(): bool
+    {
+        return true;
+    }
 }

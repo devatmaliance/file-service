@@ -35,4 +35,12 @@ class FileSystem
 
         throw new RuntimeException('Не удалось сохранить файл!');
     }
+
+    public function checkAvailability(): array
+    {
+        $storages['mainStorage'] = $this->mainStorage->checkAvailability();
+        $storages['backupStorage'] = $this->backupStorage->checkAvailability();
+
+        return $storages;
+    }
 }
