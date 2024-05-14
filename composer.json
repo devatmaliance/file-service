@@ -5,7 +5,8 @@
     "license": "MIT",
     "require": {
         "php": ">=7.4",
-        "aws/aws-sdk-php": "^3.226"
+        "aws/aws-sdk-php": "^3.226",
+        "league/mime-type-detection": "^1.15"
     },
     "autoload": {
         "psr-4": {

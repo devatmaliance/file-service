@@ -2,6 +2,8 @@
 
 namespace devatmaliance\file_service\utility;
 
+use League\MimeTypeDetection\FinfoMimeTypeDetector;
+
 class FileUtility
 {
     public static function getExtension(string $path): string
@@ -17,6 +19,11 @@ class FileUtility
     public static function getLocation(string $path): string
     {
         return pathinfo($path, PATHINFO_DIRNAME);
+    }
+
+    public static function getMimeType(string $path): string
+    {
+        return (new FinfoMimeTypeDetector())->detectMimeTypeFromPath($path);
     }
 
     public static function generateRandomString(int $length): string
