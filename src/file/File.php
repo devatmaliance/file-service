@@ -34,4 +34,8 @@ class File
         return $this->content->get();
     }
 
+    public function getMimeType(): string
+    {
+        return $this->mimeType->get();
+    }
 }

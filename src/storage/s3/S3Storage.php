@@ -6,6 +6,7 @@ use Aws\S3\S3Client;
 use devatmaliance\file_service\exception\FileReadException;
 use devatmaliance\file_service\file\File;
 use devatmaliance\file_service\file\FileContent;
+use devatmaliance\file_service\file\FileMimeType;
 use devatmaliance\file_service\file\FilePath;
 use devatmaliance\file_service\storage\Storage;
 
@@ -27,6 +28,7 @@ class S3Storage implements Storage
             'Key' => $file->getPath(),
             'Body' => $file->getContent(),
             'ACL' => 'public-read',
+            'ContentType' => $file->getMimeType()
         ]);
 
         return FilePath::fromPath($result['ObjectURL']);
@@ -45,7 +47,7 @@ class S3Storage implements Storage
             throw new FileReadException('Failed to read file: ' . $filePath);
         }
 
-        return new File(new FileContent($content), $path);
+        return new File(new FileContent($content), $path, FileMimeType::fromPath($path->get()));
     }
 
     public function checkAvailability(): bool
