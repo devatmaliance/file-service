@@ -18,7 +18,7 @@ class FileUtility
 
     public static function getLocation(string $path): string
     {
-        return pathinfo($path, PATHINFO_DIRNAME);
+        return pathinfo(ltrim($path, '/'), PATHINFO_DIRNAME);
     }
 
     public static function getMimeType(string $path): string
