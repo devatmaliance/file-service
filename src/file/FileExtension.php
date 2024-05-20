@@ -7,9 +7,14 @@ use devatmaliance\file_service\utility\FileUtility;
 class FileExtension
 {
     private string $extension;
+    private static array $restrictedExtensions = ['tmp'];
 
     public function __construct(string $extension)
     {
+        if (in_array($extension, self::$restrictedExtensions, true)) {
+            throw new \InvalidArgumentException('File extension "' . $extension . '" cannot be used.');
+        }
+
         $this->extension = $extension;
     }
 

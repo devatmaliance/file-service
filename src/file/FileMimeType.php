@@ -15,7 +15,12 @@ class FileMimeType
 
     public static function fromPath(string $path): self
     {
-        return new self(FileUtility::getMimeType($path));
+        return new self(FileUtility::getMimeTypeByPath($path));
+    }
+
+    public static function fromContent(string $content): self
+    {
+        return new self(FileUtility::getMimeTypeByContent($content));
     }
 
     public function get(): string

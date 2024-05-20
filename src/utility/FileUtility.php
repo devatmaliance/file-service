@@ -18,12 +18,17 @@ class FileUtility
 
     public static function getLocation(string $path): string
     {
-        return pathinfo(ltrim($path, '/'), PATHINFO_DIRNAME);
+        return pathinfo($path, PATHINFO_DIRNAME);
     }
 
-    public static function getMimeType(string $path): string
+    public static function getMimeTypeByPath(string $path): string
     {
         return (new FinfoMimeTypeDetector())->detectMimeTypeFromPath($path);
+    }
+
+    public static function getMimeTypeByContent(string $content): string
+    {
+        return mime_content_type($content);
     }
 
     public static function generateRandomString(int $length): string
