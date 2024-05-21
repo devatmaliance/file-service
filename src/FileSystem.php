@@ -4,6 +4,7 @@ namespace devatmaliance\file_service;
 
 use devatmaliance\file_service\file\File;
 use devatmaliance\file_service\file\FilePath;
+use devatmaliance\file_service\register\FileRegisterClient;
 use devatmaliance\file_service\storage\Storage;
 use RuntimeException;
 use Yii;
@@ -12,25 +13,31 @@ class FileSystem
 {
     private Storage $mainStorage;
     private Storage $backupStorage;
+    private FileRegisterClient $fileRegister;
 
-    public function __construct(Storage $mainStorage, Storage $backupStorage)
+    public function __construct(Storage $mainStorage, Storage $backupStorage, FileRegisterClient $fileRegister)
     {
         $this->mainStorage = $mainStorage;
         $this->backupStorage = $backupStorage;
+        $this->fileRegister = $fileRegister;
     }
 
-    public function write(File $file): FilePath
+    public function write(File $file, FilePath $publicPath): FilePath
     {
-        try {
-            return $this->mainStorage->write($file);
-        } catch (\Throwable $exception) {
-            Yii::error($exception->getMessage(), 'fileService-main');
-        }
+        $storages = [
+            'main' => $this->mainStorage,
+            'backup' => $this->backupStorage
+        ];
 
-        try {
-            return $this->backupStorage->write($file);
-        } catch (\Throwable $exception) {
-            Yii::error($exception->getMessage(), 'fileService-backup');
+        /** @var Storage $storage */
+        foreach ($storages as $storageName => $storage) {
+            try {
+                $filePath = $storage->write($file);
+                return $this->fileRegister->register($filePath, $publicPath);
+            } catch (\Throwable $exception) {
+                Yii::error($exception->getMessage(), "fileSystem-{$storageName}");
+                continue;
+            }
         }
 
         throw new RuntimeException('Не удалось сохранить файл!');
