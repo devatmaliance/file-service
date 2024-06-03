@@ -22,7 +22,7 @@ class FileSystem
         $this->fileRegister = $fileRegister;
     }
 
-    public function write(File $file, FilePath $publicPath): FilePath
+    public function write(File $file, FilePath $aliasPath): FilePath
     {
         $storages = [
             'main' => $this->mainStorage,
@@ -33,7 +33,7 @@ class FileSystem
         foreach ($storages as $storageName => $storage) {
             try {
                 $filePath = $storage->write($file);
-                return $this->fileRegister->register($filePath, $publicPath);
+                return $this->fileRegister->register($filePath, $aliasPath);
             } catch (\Throwable $exception) {
                 Yii::error($exception->getMessage(), "fileSystem-{$storageName}");
                 continue;
