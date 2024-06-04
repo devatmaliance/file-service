@@ -4,22 +4,19 @@ namespace devatmaliance\file_service;
 
 use devatmaliance\file_service\file\File;
 use devatmaliance\file_service\file\FilePath;
-use devatmaliance\file_service\register\FileRegisterClient;
+use devatmaliance\file_service\register\client\FileRegisterClient;
 use devatmaliance\file_service\storage\Storage;
 use RuntimeException;
-use Yii;
 
 class FileSystem
 {
     private Storage $mainStorage;
     private Storage $backupStorage;
-    private FileRegisterClient $fileRegister;
 
-    public function __construct(Storage $mainStorage, Storage $backupStorage, FileRegisterClient $fileRegister)
+    public function __construct(Storage $mainStorage, Storage $backupStorage)
     {
         $this->mainStorage = $mainStorage;
         $this->backupStorage = $backupStorage;
-        $this->fileRegister = $fileRegister;
     }
 
     public function write(File $file, FilePath $aliasPath): FilePath
@@ -32,8 +29,9 @@ class FileSystem
         /** @var Storage $storage */
         foreach ($storages as $storageName => $storage) {
             try {
-                $filePath = $storage->write($file);
-                return $this->fileRegister->register($filePath, $aliasPath);
+                return $storage->write($file);
+//                $filePath = $storage->write($file);
+//                return $this->fileRegister->register($filePath, $aliasPath);
             } catch (\Throwable $exception) {
                 Yii::error($exception->getMessage(), "fileSystem-{$storageName}");
                 continue;

@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+  php:
+    container_name: php
+    build: .
+    volumes:
+      - ./:/app
+    restart: always

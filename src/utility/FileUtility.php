@@ -52,4 +52,10 @@ class FileUtility
 
         return preg_replace($regExp, '', trim($dirtyText));
     }
+
+
+    public static function concatenatePaths(string $base, string $path): string
+    {
+        return sprintf('%s/%s', rtrim($base, '/'), ltrim($path, '/'));
+    }
 }

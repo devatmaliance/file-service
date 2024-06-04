@@ -9,6 +9,7 @@ use devatmaliance\file_service\file\FileContent;
 use devatmaliance\file_service\file\FileMimeType;
 use devatmaliance\file_service\file\FilePath;
 use devatmaliance\file_service\storage\Storage;
+use devatmaliance\file_service\utility\FileUtility;
 
 class LocalStorage implements Storage
 {
@@ -23,8 +24,8 @@ class LocalStorage implements Storage
 
     public function write(File $file): FilePath
     {
-        $currentPath = $file->getPath(); // /path/to/file.txt
-        $directoryPath = $this->generatePath($this->storagePath, pathinfo($currentPath, PATHINFO_DIRNAME));
+        $currentPath = $file->getPath();
+        $directoryPath = FileUtility::concatenatePaths($this->storagePath, pathinfo($currentPath, PATHINFO_DIRNAME));
 
         if (!is_dir($directoryPath)) {
             if (!mkdir($directoryPath, 0777, true) && !is_dir($directoryPath)) {
@@ -32,19 +33,19 @@ class LocalStorage implements Storage
             }
         }
 
-        $filePath = $this->generatePath($this->storagePath, $currentPath);
+        $filePath = FileUtility::concatenatePaths($this->storagePath, $currentPath);
         $content = $file->getContent();
 
         if (file_put_contents($filePath, $content) === false) {
             throw new \Exception('file_put_contents ' . $filePath);
         }
 
-        return FilePath::fromPath($this->generatePath($this->url, $currentPath));
+        return FilePath::fromPath(FileUtility::concatenatePaths($this->url, $currentPath));
     }
 
     public function read(FilePath $path): File
     {
-        $filePath = $this->generatePath($this->url, $path->get());
+        $filePath = FileUtility::concatenatePaths($this->url, $path->get());
         if (!file_exists($filePath)) {
             throw new FileNotFoundException('File not found: ' . $filePath);
         }
@@ -60,10 +61,5 @@ class LocalStorage implements Storage
     public function checkAvailability(): bool
     {
         return true;
-    }
-
-    private function generatePath(string $base, string $path): string
-    {
-        return sprintf('%s/%s', rtrim($base, '/'), ltrim($path, '/'));
     }
 }
