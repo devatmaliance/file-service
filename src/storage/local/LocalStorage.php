@@ -24,7 +24,7 @@ class LocalStorage implements Storage
 
     public function write(File $file): FilePath
     {
-        $currentPath = $file->getPath();
+        $currentPath = $file->getPath()->get();
         $directoryPath = FileUtility::concatenatePaths($this->storagePath, pathinfo($currentPath, PATHINFO_DIRNAME));
 
         if (!is_dir($directoryPath)) {
@@ -34,7 +34,7 @@ class LocalStorage implements Storage
         }
 
         $filePath = FileUtility::concatenatePaths($this->storagePath, $currentPath);
-        $content = $file->getContent();
+        $content = $file->getContent()->get();
 
         if (file_put_contents($filePath, $content) === false) {
             throw new \Exception('file_put_contents ' . $filePath);

@@ -25,10 +25,10 @@ class S3Storage implements Storage
     {
         $result = $this->client->putObject([
             'Bucket' => $this->bucket,
-            'Key' => $file->getPath(),
-            'Body' => $file->getContent(),
+            'Key' => $file->getPath()->get(),
+            'Body' => $file->getContent()->get(),
             'ACL' => 'public-read',
-            'ContentType' => $file->getMimeType()
+            'ContentType' => $file->getMimeType()->get()
         ]);
 
         return FilePath::fromPath($result['ObjectURL']);

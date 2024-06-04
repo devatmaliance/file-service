@@ -24,18 +24,18 @@ class File
         return new File($fileContent, $filePath, $fileMimeType);
     }
 
-    public function getPath(): string
+    public function getPath(): FilePath
     {
-        return $this->path->get();
+        return $this->path;
     }
 
-    public function getContent(): string
+    public function getContent(): FileContent
     {
-        return $this->content->get();
+        return $this->content;
     }
 
-    public function getMimeType(): string
+    public function getMimeType(): FileMimeType
     {
-        return $this->mimeType->get();
+        return $this->mimeType;
     }
 }
