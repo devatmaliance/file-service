@@ -2,7 +2,7 @@
 
 namespace devatmaliance\file_service\register\client;
 
-use devatmaliance\file_service\utility\FileUtility;
+use devatmaliance\file_service\file\FilePath;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
@@ -27,17 +27,19 @@ class HttpFileRegisterClient implements FileRegisterClient
         ]);
     }
 
-    public function register(string $filePath, string $aliasPath): string
+    public function getBaseUrl(): string
+    {
+        return $this->baseUrl;
+    }
+
+    public function register(FilePath $filePath, FilePath $aliasPath): FilePath
     {
         $response = $this->post('locations', [
-            'url' => $filePath,
-            'alias' => $aliasPath,
+            'url' => $filePath->get(),
+            'alias' => $aliasPath->get(),
         ]);
 
-        $host = rtrim($this->baseUrl, '/');
-        $alias = ltrim($response['alias'], '/');
-
-        return FileUtility::concatenatePaths($host, $alias);
+        return FilePath::fromPath($response['alias']);
     }
 
     private function post(string $uri, array $body): array
