@@ -24,6 +24,21 @@ class FilePath
         return new self($location, $name, $extension);
     }
 
+    public function getLocation(): FileLocation
+    {
+        return $this->location;
+    }
+
+    public function getName(): FileName
+    {
+        return $this->name;
+    }
+
+    public function getExtension(): FileExtension
+    {
+        return $this->extension;
+    }
+
     public function get(): string
     {
         return "{$this->location->get()}/{$this->name->get()}.{$this->extension->get()}";
