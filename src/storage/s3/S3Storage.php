@@ -50,10 +50,20 @@ class S3Storage implements Storage
         return new File(new FileContent($content), $path, FileMimeType::fromPath($path->get()));
     }
 
-    public function checkAvailability(): bool
+    public function remove(FilePath $path): void
+    {
+        $this->client->deleteObject([
+            'Bucket' => $this->bucket,
+            'Key' => $path->get(),
+        ]);
+    }
+
+    public function checkAvailability(File $file): bool
     {
         try {
-            $this->client->listBuckets();
+            $this->write($file);
+            $this->remove($file->getPath());
+
             return true;
         } catch (\Throwable $e) {
             return false;

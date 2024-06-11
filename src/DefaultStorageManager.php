@@ -31,4 +31,10 @@ class DefaultStorageManager implements StorageManager
 
         throw new RuntimeException('Не удалось сохранить файл!');
     }
+
+    public function checkAvailability(File $file): array
+    {
+        $storages['mainStorage'] = $this->storage->checkAvailability($file);
+        return $storages;
+    }
 }

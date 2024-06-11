@@ -58,7 +58,7 @@ class LocalStorage implements Storage
         return new File(new FileContent($content), FilePath::fromPath($filePath), FileMimeType::fromPath($filePath));
     }
 
-    public function checkAvailability(): bool
+    public function checkAvailability(File $file): bool
     {
         return true;
     }

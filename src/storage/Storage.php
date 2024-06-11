@@ -11,5 +11,5 @@ interface Storage
 
     public function read(FilePath $path): File;
 
-    public function checkAvailability(): bool;
+    public function checkAvailability(File $file): bool;
 }

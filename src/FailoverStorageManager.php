@@ -43,10 +43,10 @@ class FailoverStorageManager implements StorageManager
         throw new RuntimeException('Не удалось сохранить файл!');
     }
 
-    public function checkAvailability(): array
+    public function checkAvailability(File $file): array
     {
-        $storages['mainStorage'] = $this->mainStorage->checkAvailability();
-        $storages['backupStorage'] = $this->backupStorage->checkAvailability();
+        $storages['mainStorage'] = $this->mainStorage->checkAvailability($file);
+        $storages['backupStorage'] = $this->backupStorage->checkAvailability($file);
 
         return $storages;
     }

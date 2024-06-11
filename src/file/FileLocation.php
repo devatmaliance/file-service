@@ -10,7 +10,7 @@ class FileLocation
 
     public function __construct(string $location)
     {
-        $this->location = $location;
+        $this->location = ltrim($location, '/');
     }
 
     /**
