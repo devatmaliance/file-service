@@ -4,10 +4,10 @@ namespace devatmaliance\file_service\storage\local;
 
 use devatmaliance\file_service\exception\FileNotFoundException;
 use devatmaliance\file_service\exception\FileReadException;
+use devatmaliance\file_service\file\Content;
 use devatmaliance\file_service\file\File;
-use devatmaliance\file_service\file\FileContent;
-use devatmaliance\file_service\file\FileMimeType;
-use devatmaliance\file_service\file\FilePath;
+use devatmaliance\file_service\file\MimeType;
+use devatmaliance\file_service\file\path\Path;
 use devatmaliance\file_service\storage\Storage;
 use devatmaliance\file_service\utility\FileUtility;
 
@@ -22,7 +22,7 @@ class LocalStorage implements Storage
         $this->url = $url;
     }
 
-    public function write(File $file): FilePath
+    public function write(File $file): Path
     {
         $currentPath = $file->getPath()->get();
         $directoryPath = FileUtility::concatenatePaths($this->storagePath, pathinfo($currentPath, PATHINFO_DIRNAME));
@@ -40,10 +40,10 @@ class LocalStorage implements Storage
             throw new \Exception('file_put_contents ' . $filePath);
         }
 
-        return FilePath::fromPath(FileUtility::concatenatePaths($this->url, $currentPath));
+        return Path::fromPath(FileUtility::concatenatePaths($this->url, $currentPath));
     }
 
-    public function read(FilePath $path): File
+    public function read(Path $path): File
     {
         $filePath = FileUtility::concatenatePaths($this->url, $path->get());
         if (!file_exists($filePath)) {
@@ -55,7 +55,7 @@ class LocalStorage implements Storage
             throw new FileReadException('Failed to read file: ' . $filePath);
         }
 
-        return new File(new FileContent($content), FilePath::fromPath($filePath), FileMimeType::fromPath($filePath));
+        return new File(new Content($content), Path::fromPath($filePath), MimeType::fromPath($filePath));
     }
 
     public function checkAvailability(File $file): bool

@@ -1,10 +1,10 @@
 <?php
 
-namespace devatmaliance\file_service\file;
+namespace devatmaliance\file_service\file\path;
 
 use devatmaliance\file_service\utility\FileUtility;
 
-class FileName
+class PathName
 {
     private string $name;
     private string $prefix;

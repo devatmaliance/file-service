@@ -3,7 +3,7 @@
 namespace devatmaliance\file_service;
 
 use devatmaliance\file_service\file\File;
-use devatmaliance\file_service\file\FilePath;
+use devatmaliance\file_service\file\path\Path;
 use devatmaliance\file_service\register\FileRegister;
 use devatmaliance\file_service\storage\Storage;
 use RuntimeException;
@@ -20,7 +20,7 @@ class DefaultStorageManager implements StorageManager
         $this->fileRegister = $fileRegister;
     }
 
-    public function write(File $file, FilePath $aliasPath): FilePath
+    public function write(File $file, Path $aliasPath): Path
     {
         try {
             $filePath = $this->storage->write($file);

@@ -3,13 +3,13 @@
 namespace devatmaliance\file_service\storage;
 
 use devatmaliance\file_service\file\File;
-use devatmaliance\file_service\file\FilePath;
+use devatmaliance\file_service\file\path\Path;
 
 interface Storage
 {
-    public function write(File $file): FilePath;
+    public function write(File $file): Path;
 
-    public function read(FilePath $path): File;
+    public function read(Path $path): File;
 
     public function checkAvailability(File $file): bool;
 }

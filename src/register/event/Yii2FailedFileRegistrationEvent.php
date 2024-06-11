@@ -2,7 +2,7 @@
 
 namespace devatmaliance\file_service\register\event;
 
-use devatmaliance\file_service\file\FilePath;
+use devatmaliance\file_service\file\path\Path;
 use yii\base\Event;
 
 class Yii2FailedFileRegistrationEvent extends Event implements FileRegistrationEventAdapter
@@ -14,12 +14,12 @@ class Yii2FailedFileRegistrationEvent extends Event implements FileRegistrationE
         $this->event = $event;
     }
 
-    public function getFilePath(): FilePath
+    public function getFilePath(): Path
     {
         return $this->event->getFilePath();
     }
 
-    public function getAliasPath(): FilePath
+    public function getAliasPath(): Path
     {
         return $this->event->getAliasPath();
     }

@@ -4,10 +4,10 @@ namespace devatmaliance\file_service\storage\s3;
 
 use Aws\S3\S3Client;
 use devatmaliance\file_service\exception\FileReadException;
+use devatmaliance\file_service\file\Content;
 use devatmaliance\file_service\file\File;
-use devatmaliance\file_service\file\FileContent;
-use devatmaliance\file_service\file\FileMimeType;
-use devatmaliance\file_service\file\FilePath;
+use devatmaliance\file_service\file\MimeType;
+use devatmaliance\file_service\file\path\Path;
 use devatmaliance\file_service\storage\Storage;
 
 class S3Storage implements Storage
@@ -21,7 +21,7 @@ class S3Storage implements Storage
         $this->bucket = $bucket;
     }
 
-    public function write(File $file): FilePath
+    public function write(File $file): Path
     {
         $result = $this->client->putObject([
             'Bucket' => $this->bucket,
@@ -31,10 +31,10 @@ class S3Storage implements Storage
             'ContentType' => $file->getMimeType()->get()
         ]);
 
-        return FilePath::fromPath($result['ObjectURL']);
+        return Path::fromPath($result['ObjectURL']);
     }
 
-    public function read(FilePath $path): File
+    public function read(Path $path): File
     {
         $filePath = $path->get();
         $result = $this->client->getObject([
@@ -47,10 +47,10 @@ class S3Storage implements Storage
             throw new FileReadException('Failed to read file: ' . $filePath);
         }
 
-        return new File(new FileContent($content), $path, FileMimeType::fromPath($path->get()));
+        return new File(new Content($content), $path, MimeType::fromPath($path->get()));
     }
 
-    public function remove(FilePath $path): void
+    public function remove(Path $path): void
     {
         $this->client->deleteObject([
             'Bucket' => $this->bucket,

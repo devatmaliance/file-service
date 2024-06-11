@@ -2,7 +2,7 @@
 
 namespace devatmaliance\file_service\register;
 
-use devatmaliance\file_service\file\FilePath;
+use devatmaliance\file_service\file\path\Path;
 use devatmaliance\file_service\register\client\FileRegisterClient;
 use devatmaliance\file_service\register\event\FailedFileRegistrationEvent;
 use devatmaliance\file_service\utility\FileUtility;
@@ -19,7 +19,7 @@ class FileRegister
         $this->dispatcher = $dispatcher;
     }
 
-    public function register(FilePath $filePath, FilePath $aliasPath): FilePath
+    public function register(Path $filePath, Path $aliasPath): Path
     {
         try {
             $aliasPath = $this->client->register($filePath, $aliasPath);
@@ -31,6 +31,6 @@ class FileRegister
         $baseUrl = rtrim($this->client->getBaseUrl(), '/');
         $alias = ltrim($aliasPath->get(), '/');
 
-        return FilePath::fromPath(FileUtility::concatenatePaths($baseUrl, $alias));
+        return Path::fromPath(FileUtility::concatenatePaths($baseUrl, $alias));
     }
 }

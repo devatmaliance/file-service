@@ -2,7 +2,7 @@
 
 namespace devatmaliance\file_service\file;
 
-class FileContent
+class Content
 {
     private string $content;
 

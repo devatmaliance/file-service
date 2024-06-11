@@ -4,7 +4,7 @@ namespace devatmaliance\file_service\file;
 
 use devatmaliance\file_service\utility\FileUtility;
 
-class FileMimeType
+class MimeType
 {
     private string $mimeType;
 

@@ -1,10 +1,10 @@
 <?php
 
-namespace devatmaliance\file_service\file;
+namespace devatmaliance\file_service\file\path;
 
 use devatmaliance\file_service\utility\FileUtility;
 
-class FileExtension
+class PathExtension
 {
     private string $extension;
     private static array $restrictedExtensions = ['tmp'];

@@ -16,9 +16,19 @@ class FileUtility
         return pathinfo($path, PATHINFO_FILENAME);
     }
 
-    public static function getLocation(string $path): string
+    public static function getDirectory(string $path): string
     {
-        return pathinfo($path, PATHINFO_DIRNAME);
+        return parse_url($path, PHP_URL_PATH);
+    }
+
+    public static function getScheme(string $path): string
+    {
+        return parse_url($path, PHP_URL_SCHEME);
+    }
+
+    public static function getHost(string $path): string
+    {
+        return parse_url($path, PHP_URL_HOST);
     }
 
     public static function getMimeTypeByPath(string $path): string
