@@ -11,6 +11,9 @@ class PathName
 
     public function __construct(string $name, string $prefix = '')
     {
+        $name = rtrim($name, '.');
+        $prefix = ltrim($prefix, '/');
+
         $this->name = $name;
         $this->prefix = $prefix;
     }

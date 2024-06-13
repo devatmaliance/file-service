@@ -10,6 +10,9 @@ class PathHost
 
     public function __construct(string $host = '')
     {
+        $host = ltrim($host, '/');
+        $host = rtrim($host, '/');
+
         $this->host = $host;
     }
 

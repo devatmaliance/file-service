@@ -4,59 +4,42 @@ namespace devatmaliance\file_service\file\path;
 
 class Path
 {
-    private PathName $name;
-    private PathExtension $extension;
-    private PathScheme $scheme;
-    private PathHost $host;
-    private PathDirectory $directory;
+    private PathBaseUrl $baseUrl;
+    private RelativePath $relativePath;
 
-    public function __construct(PathScheme $scheme, PathHost $host, PathDirectory $directory, PathName $name, PathExtension $extension)
+    public function __construct(PathBaseUrl $baseUrl, RelativePath $relativePath)
     {
-        $this->scheme = $scheme;
-        $this->host = $host;
-        $this->directory = $directory;
-        $this->name = $name;
-        $this->extension = $extension;
+        $this->baseUrl = $baseUrl;
+        $this->relativePath = $relativePath;
     }
 
     public static function fromPath(string $path): self
     {
-        $scheme = PathScheme::fromPath($path);
-        $host = PathHost::fromPath($path);
-        $directory = PathDirectory::fromPath($path);
-        $name = PathName::fromPath($path);
-        $extension = PathExtension::fromPath($path);
+        $baseUrl = PathBaseUrl::fromPath($path);
+        $relativePath = RelativePath::fromPath($path);
 
-        return new self($scheme, $host, $directory, $name, $extension);
+        return new self($baseUrl, $relativePath);
     }
 
-    public function getScheme(): PathScheme
+    public function getBaseUrl(): PathBaseUrl
     {
-        return $this->scheme;
+        return $this->baseUrl;
     }
 
-    public function getHost(): PathHost
+    public function getRelativePath(): RelativePath
     {
-        return $this->host;
-    }
-
-    public function getDirectory(): PathDirectory
-    {
-        return $this->directory;
-    }
-
-    public function getName(): PathName
-    {
-        return $this->name;
-    }
-
-    public function getExtension(): PathExtension
-    {
-        return $this->extension;
+        return $this->relativePath;
     }
 
     public function get(): string
     {
-        return "{$this->directory->get()}/{$this->name->get()}.{$this->extension->get()}";
+        $baseUrl = $this->baseUrl->get();
+        $relativePath = $this->relativePath->get();
+
+        if (!empty($baseUrl)) {
+            return $baseUrl . '/' . $relativePath;
+        } else {
+            return $relativePath;
+        }
     }
 }

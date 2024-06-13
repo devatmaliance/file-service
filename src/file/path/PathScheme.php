@@ -10,7 +10,7 @@ class PathScheme
 
     public function __construct(string $scheme = '')
     {
-        if (!in_array($scheme, ['http', 'https'])) {
+        if (!empty($scheme) && !in_array($scheme, ['http', 'https'])) {
             throw new \InvalidArgumentException('Invalid scheme ' . $scheme);
         }
 
@@ -31,6 +31,6 @@ class PathScheme
      */
     public function get(): string
     {
-        return $this->scheme . '://';
+        return $this->scheme;
     }
 }

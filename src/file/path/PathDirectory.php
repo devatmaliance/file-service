@@ -10,7 +10,10 @@ class PathDirectory
 
     public function __construct(string $directory = '')
     {
-        $this->directory = ltrim($directory, '/');
+        $directory = ltrim($directory, '/');
+        $directory = rtrim($directory, '/');
+
+        $this->directory = $directory;
     }
 
     /**

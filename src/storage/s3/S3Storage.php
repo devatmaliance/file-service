@@ -36,15 +36,15 @@ class S3Storage implements Storage
 
     public function read(Path $path): File
     {
-        $filePath = $path->get();
+        $relativePath = $path->getRelativePath()->get();
         $result = $this->client->getObject([
             'Bucket' => $this->bucket,
-            'Key' => $filePath,
+            'Key' => $relativePath,
         ]);
 
         $content = $result['Body']->getContents();
         if (!is_string($content)) {
-            throw new FileReadException('Failed to read file: ' . $filePath);
+            throw new FileReadException('Failed to read file: ' . $relativePath);
         }
 
         return new File(new Content($content), $path, MimeType::fromPath($path->get()));

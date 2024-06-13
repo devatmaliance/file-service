@@ -18,7 +18,7 @@ class FileUtility
 
     public static function getDirectory(string $path): string
     {
-        return parse_url($path, PHP_URL_PATH);
+        return dirname(parse_url($path, PHP_URL_PATH));
     }
 
     public static function getScheme(string $path): string
