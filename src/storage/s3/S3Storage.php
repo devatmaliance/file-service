@@ -42,9 +42,16 @@ class S3Storage implements Storage
             'Key' => $relativePath,
         ]);
 
-        $content = $result['Body']->getContents();
-        if (!is_string($content)) {
-            throw new FileReadException('Failed to read file: ' . $relativePath);
+        try {
+            $content = $result['Body']->getContents();
+            if (!is_string($content)) {
+                throw new FileReadException('Failed to read file: ' . $relativePath);
+            }
+        } catch (\Throwable $e) {
+            $content = file_get_contents($path->get());
+            if (!is_string($content)) {
+                throw new FileReadException('Failed to read file: ' . $path->get());
+            }
         }
 
         return new File(new Content($content), $path, MimeType::fromPath($path->get()));

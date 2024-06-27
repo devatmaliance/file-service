@@ -24,10 +24,7 @@ class FailoverStorageManager implements StorageManager
 
     public function write(File $file, Path $aliasPath): Path
     {
-        $storages = [
-            'main' => $this->mainStorage,
-            'backup' => $this->backupStorage
-        ];
+        $storages = $this->getStorages();
 
         /** @var Storage $storage */
         foreach ($storages as $storageName => $storage) {
@@ -43,11 +40,35 @@ class FailoverStorageManager implements StorageManager
         throw new RuntimeException('Не удалось сохранить файл!');
     }
 
+    public function read(Path $path): File
+    {
+        $storages = $this->getStorages();
+
+        foreach ($storages as $storageName => $storage) {
+            try {
+                return $storage->read($path);
+            } catch (\Throwable $exception) {
+                Yii::error($exception->getMessage(), "fileSystem-{$storageName}");
+                continue;
+            }
+        }
+
+        throw new RuntimeException('Не удалось прочитать файл!');
+    }
+
     public function checkAvailability(File $file): array
     {
         $storages['mainStorage'] = $this->mainStorage->checkAvailability($file);
         $storages['backupStorage'] = $this->backupStorage->checkAvailability($file);
 
         return $storages;
+    }
+
+    private function getStorages(): array
+    {
+        return [
+            'main' => $this->mainStorage,
+            'backup' => $this->backupStorage
+        ];
     }
 }

@@ -32,6 +32,17 @@ class DefaultStorageManager implements StorageManager
         throw new RuntimeException('Не удалось сохранить файл!');
     }
 
+    public function read(Path $path): File
+    {
+        try {
+            return $this->storage->read($path);
+        } catch (\Throwable $exception) {
+            Yii::error($exception->getMessage(), "fileSystem-main");
+        }
+
+        throw new RuntimeException('Не удалось прочитать файл!');
+    }
+
     public function checkAvailability(File $file): array
     {
         $storages['mainStorage'] = $this->storage->checkAvailability($file);

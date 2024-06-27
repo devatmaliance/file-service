@@ -37,7 +37,7 @@ class Path
         $relativePath = $this->relativePath->get();
 
         if (!empty($baseUrl)) {
-            return $baseUrl . '/' . $relativePath;
+            return $baseUrl . '/' . ltrim($relativePath, '/');
         } else {
             return $relativePath;
         }

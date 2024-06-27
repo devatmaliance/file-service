@@ -13,7 +13,7 @@ class PathHost
         $host = ltrim($host, '/');
         $host = rtrim($host, '/');
 
-        $this->host = $host;
+        $this->host = urldecode($host);
     }
 
     public static function fromPath(string $path): self

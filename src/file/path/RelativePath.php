@@ -50,12 +50,17 @@ class RelativePath
     public function get(): string
     {
         $directory = $this->directory->get();
-        $filename = $this->name->get() . '.' . $this->extension->get();
+        $filenameAndExtension = $this->getFileNameAndExtension();
 
         if (!empty($directory)) {
-            return $directory . '/' . $filename;
+            return $directory . '/' . $filenameAndExtension;
         } else {
-            return $filename;
+            return $filenameAndExtension;
         }
+    }
+
+    public function getFileNameAndExtension(): string
+    {
+        return $this->name->get() . '.' . $this->extension->get();
     }
 }

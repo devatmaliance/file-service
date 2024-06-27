@@ -2,7 +2,6 @@
 
 namespace devatmaliance\file_service\storage\local;
 
-use devatmaliance\file_service\exception\FileNotFoundException;
 use devatmaliance\file_service\exception\FileReadException;
 use devatmaliance\file_service\file\Content;
 use devatmaliance\file_service\file\File;
@@ -45,17 +44,12 @@ class LocalStorage implements Storage
 
     public function read(Path $path): File
     {
-        $filePath = FileUtility::concatenatePaths($this->url, $path->get());
-        if (!file_exists($filePath)) {
-            throw new FileNotFoundException('File not found: ' . $filePath);
-        }
-
-        $content = @file_get_contents($filePath);
+        $content = file_get_contents($path->get());
         if (!is_string($content)) {
-            throw new FileReadException('Failed to read file: ' . $filePath);
+            throw new FileReadException('Failed to read file: ' . $path->get());
         }
 
-        return new File(new Content($content), Path::fromPath($filePath), MimeType::fromPath($filePath));
+        return new File(new Content($content), Path::fromPath($path->get()), MimeType::fromPath($path->get()));
     }
 
     public function checkAvailability(File $file): bool

@@ -14,8 +14,8 @@ class PathName
         $name = rtrim($name, '.');
         $prefix = ltrim($prefix, '/');
 
-        $this->name = $name;
-        $this->prefix = $prefix;
+        $this->name = urldecode($name);
+        $this->prefix = urldecode($prefix);
     }
 
     /**
