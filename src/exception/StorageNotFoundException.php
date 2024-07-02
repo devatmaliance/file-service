@@ -2,7 +2,7 @@
 
 namespace devatmaliance\file_service\exception;
 
-use devatmaliance\file_service\repository\StorageInfo;
+use devatmaliance\file_service\finder\StorageCriteriaDTO;
 use Throwable;
 
 class StorageNotFoundException extends \Exception
@@ -12,18 +12,18 @@ class StorageNotFoundException extends \Exception
         parent::__construct($message, $code, $previous);
     }
 
-    public static function withStorageInfo(StorageInfo $info): self
+    public static function withStorageCriteria(StorageCriteriaDTO $criteria): self
     {
-        $message = "Storage not found with the following criteria: " . self::buildMessage($info);
+        $message = "Storage not found with the following criteria: " . self::buildMessage($criteria);
         return new self($message);
     }
 
-    private static function buildMessage(StorageInfo $info): string
+    private static function buildMessage(StorageCriteriaDTO $info): string
     {
         $criteria = [];
 
-        if ($info->getHost()) {
-            $criteria[] = "Host: " . $info->getHost();
+        if ($info->getBaseUrl()) {
+            $criteria[] = "BaseUrl: " . $info->getBaseUrl();
         }
 
         if ($info->getType()) {
@@ -34,8 +34,8 @@ class StorageNotFoundException extends \Exception
             $criteria[] = "Priority: " . $info->getPriority();
         }
 
-        if ($info->getPermission()) {
-            $criteria[] = "Permissions: " . $info->getPermission();
+        if ($info->getPermissions()) {
+            $criteria[] = "Permissions: " . $info->getPermissions();
         }
 
         return implode(", ", $criteria);

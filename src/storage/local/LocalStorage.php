@@ -7,6 +7,7 @@ use devatmaliance\file_service\file\Content;
 use devatmaliance\file_service\file\File;
 use devatmaliance\file_service\file\MimeType;
 use devatmaliance\file_service\file\path\Path;
+use devatmaliance\file_service\storage\BaseStorageConfiguration;
 use devatmaliance\file_service\storage\Storage;
 use devatmaliance\file_service\utility\FileUtility;
 
@@ -14,11 +15,18 @@ class LocalStorage implements Storage
 {
     private string $url;
     private string $storagePath;
+    private BaseStorageConfiguration $config;
 
-    public function __construct(string $url, string $storagePath)
+    public function __construct(LocalStorageConfiguration $config)
     {
-        $this->storagePath = $storagePath;
-        $this->url = $url;
+        $this->url = $config->getBaseUrl();
+        $this->storagePath = $config->getStoragePath();
+        $this->config = $config;
+    }
+
+    public function getConfig(): BaseStorageConfiguration
+    {
+        return $this->config;
     }
 
     public function write(File $file): Path

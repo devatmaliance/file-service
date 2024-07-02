@@ -5,26 +5,26 @@ namespace devatmaliance\file_service;
 use devatmaliance\file_service\file\File;
 use devatmaliance\file_service\file\path\Path;
 use devatmaliance\file_service\register\FileRegister;
-use devatmaliance\file_service\repository\StorageInfo;
-use devatmaliance\file_service\repository\StorageRepository;
+use devatmaliance\file_service\finder\StorageCriteriaDTO;
+use devatmaliance\file_service\finder\StorageFinder;
 use devatmaliance\file_service\storage\Storage;
 use RuntimeException;
 use Yii;
 
 class ComplexStorageManager implements StorageManager
 {
-    private StorageRepository $repository;
+    private StorageFinder $finder;
     private FileRegister $register;
 
-    public function __construct(StorageRepository $repository, FileRegister $register)
+    public function __construct(StorageFinder $finder, FileRegister $register)
     {
-        $this->repository = $repository;
+        $this->finder = $finder;
         $this->register = $register;
     }
 
-    public function write(File $file, Path $aliasPath, ?StorageInfo $storageInfo = null): Path
+    public function write(File $file, Path $aliasPath, ?StorageCriteriaDTO $criteria = null): Path
     {
-        $path = $this->executeWithStorages($storageInfo, function (Storage $storage) use ($file) {
+        $path = $this->executeWithStorages($criteria, function (Storage $storage) use ($file) {
             return $storage->write($file);
         });
 
@@ -35,13 +35,16 @@ class ComplexStorageManager implements StorageManager
         return $this->register->register($path, $aliasPath);
     }
 
-    public function read(Path $path, ?StorageInfo $storageInfo = null): File
+    public function read(Path $path): File
     {
-        if ($path->getBaseUrl()->getHost()->get() === 'hello') {
+        $criteria = new StorageCriteriaDTO();
+
+        if ($path->getBaseUrl()->getHost()->get() === $this->register->getBaseUrl()->get()) {
             $path = $this->register->get($path);
+            $criteria->setBaseUrl($path->getBaseUrl()->get());
         }
 
-        $file = $this->executeWithStorages($storageInfo, function (Storage $storage) use ($path) {
+        $file = $this->executeWithStorages($criteria, function (Storage $storage) use ($path) {
             return $storage->read($path);
         });
 
@@ -52,10 +55,10 @@ class ComplexStorageManager implements StorageManager
         return $file;
     }
 
-    private function executeWithStorages(StorageInfo $storageInfo, callable $operation)
+    private function executeWithStorages(StorageCriteriaDTO $criteria, callable $operation)
     {
         try {
-            $storages = $this->repository->find($storageInfo);
+            $storages = $this->finder->find($criteria);
             foreach ($storages as $storage) {
                 try {
                     return $operation($storage);
