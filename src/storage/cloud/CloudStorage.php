@@ -1,6 +1,6 @@
 <?php
 
-namespace devatmaliance\file_service\storage\s3;
+namespace devatmaliance\file_service\storage\cloud;
 
 use Aws\S3\S3Client;
 use devatmaliance\file_service\exception\FileReadException;
@@ -8,17 +8,25 @@ use devatmaliance\file_service\file\Content;
 use devatmaliance\file_service\file\File;
 use devatmaliance\file_service\file\MimeType;
 use devatmaliance\file_service\file\path\Path;
+use devatmaliance\file_service\storage\BaseStorageConfiguration;
 use devatmaliance\file_service\storage\Storage;
 
-class S3Storage implements Storage
+class CloudStorage implements Storage
 {
-    private S3Client $client;
     private string $bucket;
+    private S3Client $client;
+    private CloudStorageConfiguration $config;
 
-    public function __construct(array $config, string $bucket)
+    public function __construct(CloudStorageConfiguration $config)
     {
-        $this->client = new S3Client($config);
-        $this->bucket = $bucket;
+        $this->client = new S3Client($config->getConnection());
+        $this->bucket = $config->getBucket();
+        $this->config = $config;
+    }
+
+    public function getConfig(): BaseStorageConfiguration
+    {
+        return $this->config;
     }
 
     public function write(File $file): Path

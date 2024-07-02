@@ -12,4 +12,6 @@ interface Storage
     public function read(Path $path): File;
 
     public function checkAvailability(File $file): bool;
+
+    public function getConfig(): BaseStorageConfiguration;
 }

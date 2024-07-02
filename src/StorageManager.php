@@ -10,4 +10,6 @@ interface StorageManager
     public function write(File $file, Path $aliasPath): Path;
 
     public function checkAvailability(File $file): array;
+
+    public function read(Path $path): File;
 }

@@ -33,4 +33,14 @@ class FileRegister
 
         return Path::fromPath(FileUtility::concatenatePaths($baseUrl, $alias));
     }
+
+    public function get(Path $path): Path
+    {
+        return $this->client->getPathByAlias($path->getRelativePath());
+    }
+
+    public function getBaseUrl(): Path
+    {
+        return Path::fromPath($this->client->getBaseUrl());
+    }
 }

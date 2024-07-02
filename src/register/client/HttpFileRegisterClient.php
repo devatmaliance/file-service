@@ -3,10 +3,11 @@
 namespace devatmaliance\file_service\register\client;
 
 use devatmaliance\file_service\file\path\Path;
+use devatmaliance\file_service\file\path\RelativePath;
+use devatmaliance\file_service\utility\FileUtility;
 use Exception;
 use GuzzleHttp\Client;
-use GuzzleHttp\Psr7\Request;
-use Psr\Http\Message\RequestInterface;
+use GuzzleHttp\Exception\RequestException;
 use Psr\Http\Message\ResponseInterface;
 
 class HttpFileRegisterClient implements FileRegisterClient
@@ -42,35 +43,65 @@ class HttpFileRegisterClient implements FileRegisterClient
         return Path::fromPath($response['alias']);
     }
 
-    private function post(string $uri, array $body): array
+    public function getPathByAlias(RelativePath $relativePath): Path
     {
-        $request = $this->createRequest('POST', $uri, $body);
-        return $this->sendRequest($request);
+        $response = $this->get('locations', [
+            'alias' => $relativePath->get()
+        ]);
+
+        return Path::fromPath(FileUtility::concatenatePaths($response['host'], $response['relativePath']));
     }
 
-    private function createRequest(string $method, string $uri, ?array $body = null): RequestInterface
-    {
-        $options = [];
-        if ($body) {
-            $options['body'] = json_encode($body);
-        }
-
-        return new Request($method, $uri, [], $options['body'] ?? null);
-    }
-
-    private function sendRequest(RequestInterface $request): array
+    /**
+     * Отправляет POST запрос с указанным телом.
+     *
+     * @param string $uri
+     * @param array $body
+     * @return array
+     * @throws RequestException
+     */
+    public function post(string $uri, array $body): array
     {
         try {
-            return $this->handleResponse($this->client->send($request));
-        } catch (\Throwable $e) {
-            throw new Exception('HTTP request failed: ' . $e->getMessage());
+            $response = $this->client->post($uri, [
+                'json' => $body,
+            ]);
+
+            return $this->handleResponse($response);
+        } catch (RequestException $e) {
+            throw new Exception("POST request failed: " . $e->getMessage(), $e->getCode(), $e);
         }
     }
 
     /**
+     * Отправляет GET запрос с указанными параметрами.
+     *
+     * @param string $uri
+     * @param array $params
+     * @return array
+     * @throws RequestException
+     */
+    public function get(string $uri, array $params = []): array
+    {
+        try {
+            $response = $this->client->get($uri, [
+                'query' => $params,
+            ]);
+
+            return $this->handleResponse($response);
+        } catch (RequestException $e) {
+            throw new Exception("GET request failed: " . $e->getMessage(), $e->getCode(), $e);
+        }
+    }
+
+    /**
+     * Обрабатывает ответ Guzzle и возвращает декодированный JSON.
+     *
+     * @param ResponseInterface $response
+     * @return array
      * @throws Exception
      */
-    public function handleResponse(ResponseInterface $response): array
+    private function handleResponse(ResponseInterface $response): array
     {
         $this->validateResponse($response);
 
