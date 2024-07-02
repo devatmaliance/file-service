@@ -4,6 +4,7 @@ namespace devatmaliance\file_service\register;
 
 use devatmaliance\file_service\file\path\Path;
 use devatmaliance\file_service\register\client\FileRegisterClient;
+use devatmaliance\file_service\register\entity\PathInfo;
 use devatmaliance\file_service\register\event\FailedFileRegistrationEvent;
 use devatmaliance\file_service\utility\FileUtility;
 use Psr\EventDispatcher\EventDispatcherInterface;
@@ -32,5 +33,10 @@ class FileRegister
         $alias = ltrim($aliasPath->get(), '/');
 
         return Path::fromPath(FileUtility::concatenatePaths($baseUrl, $alias));
+    }
+
+    public function get(Path $path): Path
+    {
+        return $this->client->getPathByAlias($path->getRelativePath());
     }
 }
