@@ -43,9 +43,9 @@ class FailoverStorageManager implements StorageManager
     public function read(Path $path): File
     {
         $storages = $this->getStorages();
-        if ($path->getBaseUrl()->getHost()->get() === 'hello') {
-            $path = $this->fileRegister->get($path);
-        }
+//        if ($path->getBaseUrl()->getHost()->get() === 'hello') {
+//            $path = $this->fileRegister->get($path);
+//        }
 
         foreach ($storages as $storageName => $storage) {
             try {
