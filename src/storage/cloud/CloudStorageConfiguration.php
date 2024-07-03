@@ -51,4 +51,23 @@ class CloudStorageConfiguration extends BaseStorageConfiguration
         ];
     }
 
+    public static function fromArray(array $config): self
+    {
+        $reflector = new \ReflectionClass(self::class);
+        $constructor = $reflector->getConstructor();
+        $parameters = $constructor->getParameters();
+
+        $args = [];
+        foreach ($parameters as $parameter) {
+            $name = $parameter->getName();
+            if (!isset($config[$name])) {
+                throw new \Exception("Missing parameter: $name");
+            }
+
+            $args[] = $config[$name];
+        }
+
+        return $reflector->newInstanceArgs($args);
+    }
+    // TODO:: fromFile
 }

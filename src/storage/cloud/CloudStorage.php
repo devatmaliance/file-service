@@ -31,9 +31,10 @@ class CloudStorage implements Storage
 
     public function write(File $file): Path
     {
+        $relativePath = ltrim($file->getPath()->getRelativePath()->get(), '/');
         $result = $this->client->putObject([
             'Bucket' => $this->bucket,
-            'Key' => $file->getPath()->get(),
+            'Key' => $relativePath,
             'Body' => $file->getContent()->get(),
             'ACL' => 'public-read',
             'ContentType' => $file->getMimeType()->get()
@@ -44,7 +45,7 @@ class CloudStorage implements Storage
 
     public function read(Path $path): File
     {
-        $relativePath = $path->getRelativePath()->get();
+        $relativePath = ltrim($path->getRelativePath()->get(), '/');
         $result = $this->client->getObject([
             'Bucket' => $this->bucket,
             'Key' => $relativePath,

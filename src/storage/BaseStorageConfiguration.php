@@ -6,6 +6,8 @@ abstract class BaseStorageConfiguration
 {
     public const READ_ONLY = 4;
     public const READ_WRITE = 7;
+    public const CLOUD_TYPE = 'cloud';
+    public const LOCAL_TYPE = 'local';
 
     protected string $type;
     protected string $baseUrl;

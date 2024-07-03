@@ -7,11 +7,13 @@ class PathBaseUrl
 {
     private PathScheme $scheme;
     private PathHost $host;
+    private PathPort $port;
 
-    public function __construct(PathScheme $scheme, PathHost $host)
+    public function __construct(PathScheme $scheme, PathHost $host, PathPort $port)
     {
         $this->scheme = $scheme;
         $this->host = $host;
+        $this->port = $port;
     }
 
     /**
@@ -22,8 +24,9 @@ class PathBaseUrl
     {
         $scheme = PathScheme::fromPath($path);
         $host = PathHost::fromPath($path);
+        $port = PathPort::fromPath($path);
 
-        return new self($scheme, $host);
+        return new self($scheme, $host, $port);
     }
 
     public function getScheme(): PathScheme
@@ -36,22 +39,29 @@ class PathBaseUrl
         return $this->host;
     }
 
-    /**
-     * @return string
-     */
+    public function getPort(): PathPort
+    {
+        return $this->port;
+    }
+
     public function get(): string
     {
         $scheme = $this->scheme->get();
         $host = $this->host->get();
+        $port = $this->port->get();
+
+        $baseUrlParts = [];
 
         if (!empty($scheme) && !empty($host)) {
-            return $scheme . '://' . $host;
+            $baseUrlParts[] = $scheme . '://' . $host;
+        } elseif (!empty($host)) {
+            $baseUrlParts[] = $host;
         }
 
-        if (!empty($host)) {
-            return $host;
+        if (!empty($port) && !empty($host)) {
+            $baseUrlParts[] = ':' . $port;
         }
 
-        return '';
+        return implode('', $baseUrlParts);
     }
 }

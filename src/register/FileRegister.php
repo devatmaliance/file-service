@@ -29,7 +29,7 @@ class FileRegister
         }
 
         $baseUrl = rtrim($this->client->getBaseUrl(), '/');
-        $alias = ltrim($aliasPath->get(), '/');
+        $alias = ltrim($aliasPath->getRelativePath()->get(), '/');
 
         return Path::fromPath(FileUtility::concatenatePaths($baseUrl, $alias));
     }

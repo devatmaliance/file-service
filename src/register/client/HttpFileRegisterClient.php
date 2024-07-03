@@ -37,7 +37,7 @@ class HttpFileRegisterClient implements FileRegisterClient
     {
         $response = $this->post('locations', [
             'url' => $filePath->get(),
-            'alias' => $aliasPath->get(),
+            'alias' => $aliasPath->getRelativePath()->get(),
         ]);
 
         return Path::fromPath($response['alias']);

@@ -32,6 +32,11 @@ class FileUtility
         return parse_url($path, PHP_URL_HOST);
     }
 
+    public static function getPort(string $path): string
+    {
+        return parse_url($path, PHP_URL_PORT);
+    }
+
     public static function getMimeTypeByPath(string $path): string
     {
         return (new FinfoMimeTypeDetector())->detectMimeTypeFromPath($path);
