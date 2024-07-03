@@ -43,4 +43,9 @@ class FileRegister
     {
         return Path::fromPath($this->client->getBaseUrl());
     }
+
+    public function aliasExists(Path $aliasPath): bool
+    {
+        return $this->client->aliasExists($aliasPath->getRelativePath());
+    }
 }

@@ -24,6 +24,14 @@ class ComplexStorageManager implements StorageManager
 
     public function write(File $file, Path $aliasPath, ?StorageCriteriaDTO $criteria = null): Path
     {
+        if (!$this->register->aliasExists($aliasPath)) {
+            throw new RuntimeException("Alias '{$aliasPath->get()}' does not exist");
+        }
+
+        if (!$criteria) {
+            $criteria = new StorageCriteriaDTO();
+        }
+
         $path = $this->executeWithStorages($criteria, function (Storage $storage) use ($file) {
             return $storage->write($file);
         });

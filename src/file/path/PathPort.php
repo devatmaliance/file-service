@@ -18,7 +18,7 @@ class PathPort
         return new self(FileUtility::getPort($path));
     }
 
-    public function get(): string
+    public function get(): ?int
     {
         return $this->port;
     }

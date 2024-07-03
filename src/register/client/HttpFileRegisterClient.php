@@ -15,7 +15,7 @@ class HttpFileRegisterClient implements FileRegisterClient
     private Client $client;
     private string $baseUrl;
 
-    public function __construct(string $baseUrl, string $apiKey, int $timeout = 30)
+    public function __construct(string $baseUrl, string $apiKey, $apiVersion, int $timeout = 30)
     {
         $this->baseUrl = $baseUrl;
         $this->client = new Client([
@@ -24,6 +24,7 @@ class HttpFileRegisterClient implements FileRegisterClient
             'headers' => [
                 'Authorization' => $apiKey,
                 'Content-Type' => 'application/json',
+                'API-version' => $apiVersion
             ],
         ]);
     }
@@ -52,6 +53,36 @@ class HttpFileRegisterClient implements FileRegisterClient
         return Path::fromPath(FileUtility::concatenatePaths($response['host'], $response['relativePath']));
     }
 
+    public function aliasExists(RelativePath $relativePath): bool
+    {
+        return $this->head('locations', [
+            'alias' => $relativePath->get()
+        ]);
+    }
+
+    /**
+     * Отправляет HEAD запрос с указанными параметрами.
+     *
+     * @param string $uri
+     * @param array $params
+     * @return bool
+     * @throws RequestException
+     */
+    public function head(string $uri, array $params = []): bool
+    {
+        try {
+            $response = $this->client->head($uri, [
+                'query' => $params,
+            ]);
+            return $response->getStatusCode() === 200;
+        } catch (RequestException $e) {
+            if ($e->getResponse() && $e->getResponse()->getStatusCode() === 404) {
+                return false;
+            }
+            throw $e;
+        }
+    }
+
     /**
      * Отправляет POST запрос с указанным телом.
      *
@@ -62,15 +93,11 @@ class HttpFileRegisterClient implements FileRegisterClient
      */
     public function post(string $uri, array $body): array
     {
-        try {
-            $response = $this->client->post($uri, [
-                'json' => $body,
-            ]);
+        $response = $this->client->post($uri, [
+            'json' => $body,
+        ]);
 
-            return $this->handleResponse($response);
-        } catch (RequestException $e) {
-            throw new Exception("POST request failed: " . $e->getMessage(), $e->getCode(), $e);
-        }
+        return $this->handleResponse($response);
     }
 
     /**
@@ -83,15 +110,11 @@ class HttpFileRegisterClient implements FileRegisterClient
      */
     public function get(string $uri, array $params = []): array
     {
-        try {
-            $response = $this->client->get($uri, [
-                'query' => $params,
-            ]);
+        $response = $this->client->get($uri, [
+            'query' => $params,
+        ]);
 
-            return $this->handleResponse($response);
-        } catch (RequestException $e) {
-            throw new Exception("GET request failed: " . $e->getMessage(), $e->getCode(), $e);
-        }
+        return $this->handleResponse($response);
     }
 
     /**
@@ -103,8 +126,6 @@ class HttpFileRegisterClient implements FileRegisterClient
      */
     private function handleResponse(ResponseInterface $response): array
     {
-        $this->validateResponse($response);
-
         $body = $response->getBody()->getContents();
         $decodedBody = json_decode($body, true);
 
@@ -115,17 +136,5 @@ class HttpFileRegisterClient implements FileRegisterClient
         return $decodedBody;
     }
 
-    private function validateResponse(ResponseInterface $response): void
-    {
-        $statusCode = $response->getStatusCode();
-        $reasonPhrase = $response->getReasonPhrase();
 
-        if ($statusCode < 200 || $statusCode >= 300) {
-            throw new \Exception("Server returned error: $statusCode - $reasonPhrase");
-        }
-
-        if (!$response->getBody()->getSize()) {
-            throw new \Exception("Empty response body");
-        }
-    }
 }
