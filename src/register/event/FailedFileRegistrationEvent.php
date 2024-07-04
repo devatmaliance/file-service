@@ -11,10 +11,10 @@ final class FailedFileRegistrationEvent extends Event implements FileRegistratio
     const NAME = 'file.registration_failed';
 
     private Path $filePath;
-    private RelativePath $aliasPath;
+    private Path $aliasPath;
     private \Throwable $exception;
 
-    public function __construct(Path $filePath, RelativePath $aliasPath, \Throwable $exception)
+    public function __construct(Path $filePath, Path $aliasPath, \Throwable $exception)
     {
         $this->filePath = $filePath;
         $this->aliasPath = $aliasPath;
@@ -26,7 +26,7 @@ final class FailedFileRegistrationEvent extends Event implements FileRegistratio
         return $this->filePath;
     }
 
-    public function getAliasPath(): RelativePath
+    public function getAliasPath(): Path
     {
         return $this->aliasPath;
     }

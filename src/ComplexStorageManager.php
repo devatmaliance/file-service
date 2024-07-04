@@ -26,9 +26,7 @@ class ComplexStorageManager implements StorageManager
 
     public function write(File $file, RelativePath $aliasPath, ?StorageCriteriaDTO $criteria = null): Path
     {
-        if (!$this->register->aliasExists($aliasPath)) {
-            throw new RuntimeException("Alias '{$aliasPath->get()}' does not exist");
-        }
+        $alias = $this->register->reserveAlias($aliasPath);
 
         if (!$criteria) {
             $criteria = new StorageCriteriaDTO();
@@ -43,7 +41,9 @@ class ComplexStorageManager implements StorageManager
             throw new RuntimeException('Не удалось сохранить файл!');
         }
 
-        return $this->register->register($path, $aliasPath);
+        $this->register->registerFile($path, $alias);
+
+        return $alias;
     }
 
     public function read(Path $path): File

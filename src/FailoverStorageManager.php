@@ -30,7 +30,7 @@ class FailoverStorageManager implements StorageManager
         foreach ($storages as $storageName => $storage) {
             try {
                 $filePath = $storage->write($file);
-                return $this->fileRegister->register($filePath, $aliasPath);
+                return $this->fileRegister->registerFile($filePath, $aliasPath);
             } catch (\Throwable $exception) {
                 Yii::error($exception->getMessage(), "fileSystem-{$storageName}");
                 continue;

@@ -24,7 +24,7 @@ class DefaultStorageManager implements StorageManager
     {
         try {
             $filePath = $this->storage->write($file);
-            return $this->fileRegister->register($filePath, $aliasPath);
+            return $this->fileRegister->registerFile($filePath, $aliasPath);
         } catch (\Throwable $exception) {
             Yii::error($exception->getMessage(), "fileSystem-storage");
         }

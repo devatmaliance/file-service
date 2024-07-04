@@ -7,5 +7,5 @@ class StorageCriteriaDTO
     public ?string $baseUrl;
     public ?string $type;
     public ?int $priority;
-    public ?string $permission;
+    public ?int $permission;
 }

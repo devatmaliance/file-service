@@ -9,7 +9,7 @@ interface FileRegistrationEventAdapter
 {
     public function getFilePath(): Path;
 
-    public function getAliasPath(): RelativePath;
+    public function getAliasPath(): Path;
 
     public function getException(): \Throwable;
 
