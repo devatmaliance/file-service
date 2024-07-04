@@ -2,6 +2,7 @@
 
 namespace devatmaliance\file_service;
 
+use devatmaliance\file_service\exception\FileNotFoundException;
 use devatmaliance\file_service\file\File;
 use devatmaliance\file_service\file\path\Path;
 use devatmaliance\file_service\file\path\RelativePath;
@@ -26,44 +27,56 @@ class ComplexStorageManager implements StorageManager
 
     public function write(File $file, RelativePath $aliasPath, ?StorageCriteriaDTO $criteria = null): Path
     {
-        $alias = $this->register->reserveAlias($aliasPath);
+        try {
+            $alias = $this->register->reserveAlias($aliasPath);
 
-        if (!$criteria) {
-            $criteria = new StorageCriteriaDTO();
-            $criteria->permission = BaseStorageConfiguration::READ_WRITE;
+            if (!$criteria) {
+                $criteria = new StorageCriteriaDTO();
+                $criteria->permission = BaseStorageConfiguration::READ_WRITE;
+            }
+
+            $path = $this->executeWithStorages($criteria, function (Storage $storage) use ($file) {
+                return $storage->write($file);
+            });
+
+            if (!$path) {
+                throw new FileNotFoundException();
+            }
+
+            $this->register->registerFile($path, $alias);
+
+            return $alias;
+        } catch (\Throwable $e) {
+            Yii::error($e->getMessage(), "fileSystem-write");
         }
 
-        $path = $this->executeWithStorages($criteria, function (Storage $storage) use ($file) {
-            return $storage->write($file);
-        });
-
-        if (!$path) {
-            throw new RuntimeException('Не удалось сохранить файл!');
-        }
-
-        $this->register->registerFile($path, $alias);
-
-        return $alias;
+        throw new RuntimeException('Не удалось сохранить файл!');
     }
 
     public function read(Path $path): File
     {
-        if ($path->getBaseUrl()->getHost()->get() === $this->register->getBaseUrl()->get()) {
-            $path = $this->register->get($path);
+        try {
+            if ($path->getBaseUrl()->getHost()->get() === $this->register->getBaseUrl()->get()) {
+                $path = $this->register->get($path);
+            }
+
+            $criteria = new StorageCriteriaDTO();
+            $criteria->baseUrl = $path->getBaseUrl()->get();
+
+            $file = $this->executeWithStorages($criteria, function (Storage $storage) use ($path) {
+                return $storage->read($path);
+            });
+
+            if (!$file) {
+                throw new FileNotFoundException();
+            }
+
+            return $file;
+        } catch (\Throwable $e) {
+            Yii::error($e->getMessage(), "fileSystem-read");
         }
 
-        $criteria = new StorageCriteriaDTO();
-        $criteria->baseUrl = $path->getBaseUrl()->get();
-
-        $file = $this->executeWithStorages($criteria, function (Storage $storage) use ($path) {
-            return $storage->read($path);
-        });
-
-        if (!$file) {
-            throw new RuntimeException('Не удалось прочитать файл!');
-        }
-
-        return $file;
+        throw new RuntimeException('Не удалось прочитать файл!');
     }
 
     private function executeWithStorages(StorageCriteriaDTO $criteria, callable $operation)
