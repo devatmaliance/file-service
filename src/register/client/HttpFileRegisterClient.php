@@ -36,10 +36,19 @@ class HttpFileRegisterClient implements FileRegisterClient
 
     public function registerFile(Path $filePath, Path $aliasPath): void
     {
-        $this->post('locations', [
+        $this->post('locations/register', [
             'url' => $filePath->get(),
             'alias' => $aliasPath->getRelativePath()->get(),
         ]);
+    }
+
+    public function reserveAlias(RelativePath $aliasPath): Path
+    {
+        $response = $this->post('locations/reserve', [
+            'alias' => $aliasPath->get()
+        ]);
+
+        return Path::fromPath(FileUtility::concatenatePaths($response['host'], $response['alias']));
     }
 
     public function getPathByAlias(RelativePath $relativePath): Path
@@ -56,15 +65,6 @@ class HttpFileRegisterClient implements FileRegisterClient
         return $this->head('locations', [
             'alias' => $relativePath->get()
         ]);
-    }
-
-    public function reserveAlias(RelativePath $aliasPath): Path
-    {
-        $response = $this->post('locations/reserve', [
-            'alias' => $aliasPath->get()
-        ]);
-
-        return Path::fromPath(FileUtility::concatenatePaths($response['host'], $response['alias']));
     }
 
     /**
