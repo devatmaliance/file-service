@@ -7,7 +7,7 @@ use devatmaliance\file_service\file\path\RelativePath;
 
 interface FileRegisterClient
 {
-    public function register(Path $filePath, Path $aliasPath): Path;
+    public function register(Path $filePath, RelativePath $aliasPath): Path;
 
     public function getPathByAlias(RelativePath $relativePath): Path;
 

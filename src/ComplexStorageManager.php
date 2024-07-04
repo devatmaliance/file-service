@@ -4,9 +4,11 @@ namespace devatmaliance\file_service;
 
 use devatmaliance\file_service\file\File;
 use devatmaliance\file_service\file\path\Path;
+use devatmaliance\file_service\file\path\RelativePath;
 use devatmaliance\file_service\register\FileRegister;
 use devatmaliance\file_service\finder\StorageCriteriaDTO;
 use devatmaliance\file_service\finder\StorageFinder;
+use devatmaliance\file_service\storage\BaseStorageConfiguration;
 use devatmaliance\file_service\storage\Storage;
 use RuntimeException;
 use Yii;
@@ -22,7 +24,7 @@ class ComplexStorageManager implements StorageManager
         $this->register = $register;
     }
 
-    public function write(File $file, Path $aliasPath, ?StorageCriteriaDTO $criteria = null): Path
+    public function write(File $file, RelativePath $aliasPath, ?StorageCriteriaDTO $criteria = null): Path
     {
         if (!$this->register->aliasExists($aliasPath)) {
             throw new RuntimeException("Alias '{$aliasPath->get()}' does not exist");
@@ -30,6 +32,7 @@ class ComplexStorageManager implements StorageManager
 
         if (!$criteria) {
             $criteria = new StorageCriteriaDTO();
+            $criteria->permission = BaseStorageConfiguration::READ_WRITE;
         }
 
         $path = $this->executeWithStorages($criteria, function (Storage $storage) use ($file) {
@@ -45,12 +48,12 @@ class ComplexStorageManager implements StorageManager
 
     public function read(Path $path): File
     {
-        $criteria = new StorageCriteriaDTO();
-
         if ($path->getBaseUrl()->getHost()->get() === $this->register->getBaseUrl()->get()) {
             $path = $this->register->get($path);
-            $criteria->setBaseUrl($path->getBaseUrl()->get());
         }
+
+        $criteria = new StorageCriteriaDTO();
+        $criteria->baseUrl = $path->getBaseUrl()->get();
 
         $file = $this->executeWithStorages($criteria, function (Storage $storage) use ($path) {
             return $storage->read($path);

@@ -17,18 +17,18 @@ class StorageFinder
     /**
      * Поиск хранилищ по заданным критериям.
      *
-     * @param StorageCriteriaDTO $criteria
+     * @param StorageCriteriaDTO $criteriaDTO
      * @return array
      * @throws StorageNotFoundException
      */
-    public function find(StorageCriteriaDTO $criteria): array
+    public function find(StorageCriteriaDTO $criteriaDTO): array
     {
-        $filteredStorages = array_filter($this->storages, function (Storage $storage) use ($criteria) {
-            return $this->matchesStorage($storage, $criteria);
+        $filteredStorages = array_filter($this->storages, function (Storage $storage) use ($criteriaDTO) {
+            return $this->matchesStorage($storage, $criteriaDTO);
         });
 
         if (empty($filteredStorages)) {
-            throw StorageNotFoundException::withStorageCriteria($criteria);
+            throw StorageNotFoundException::withStorageCriteria($criteriaDTO);
         }
 
         usort($filteredStorages, function (Storage $storage1, Storage $storage2) {
@@ -38,21 +38,21 @@ class StorageFinder
         return $filteredStorages;
     }
 
-    private function matchesStorage(Storage $storage, StorageCriteriaDTO $criteria): bool
+    private function matchesStorage(Storage $storage, StorageCriteriaDTO $criteriaDTO): bool
     {
-        if (!empty($criteria->getBaseUrl()) && $storage->getConfig()->getBaseUrl() !== $criteria->getBaseUrl()) {
+        if (!empty($criteriaDTO->baseUrl) && $storage->getConfig()->getBaseUrl() !== $criteriaDTO->baseUrl) {
             return false;
         }
 
-        if (!empty($criteria->getType()) && $storage->getConfig()->getType() !== $criteria->getType()) {
+        if (!empty($criteriaDTO->type) && $storage->getConfig()->getType() !== $criteriaDTO->type) {
             return false;
         }
 
-        if (!empty($criteria->getPriority()) && $storage->getConfig()->getPriority() !== $criteria->getPriority()) {
+        if (!empty($criteriaDTO->priority) && $storage->getConfig()->getPriority() !== $criteriaDTO->priority) {
             return false;
         }
 
-        if (!empty($criteria->getPermissions()) && $storage->getConfig()->getPermissions() !== $criteria->getPermissions()) {
+        if (!empty($criteriaDTO->permission) && $storage->getConfig()->getPermissions() !== $criteriaDTO->permission) {
             return false;
         }
 

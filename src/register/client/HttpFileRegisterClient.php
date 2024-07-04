@@ -34,11 +34,11 @@ class HttpFileRegisterClient implements FileRegisterClient
         return $this->baseUrl;
     }
 
-    public function register(Path $filePath, Path $aliasPath): Path
+    public function register(Path $filePath, RelativePath $aliasPath): Path
     {
         $response = $this->post('locations', [
             'url' => $filePath->get(),
-            'alias' => $aliasPath->getRelativePath()->get(),
+            'alias' => $aliasPath->get(),
         ]);
 
         return Path::fromPath($response['alias']);

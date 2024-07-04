@@ -18,24 +18,24 @@ class StorageNotFoundException extends \Exception
         return new self($message);
     }
 
-    private static function buildMessage(StorageCriteriaDTO $info): string
+    private static function buildMessage(StorageCriteriaDTO $criteriaDTO): string
     {
         $criteria = [];
 
-        if ($info->getBaseUrl()) {
-            $criteria[] = "BaseUrl: " . $info->getBaseUrl();
+        if ($criteriaDTO->baseUrl) {
+            $criteria[] = "BaseUrl: " . $criteriaDTO->baseUrl;
         }
 
-        if ($info->getType()) {
-            $criteria[] = "Type: " . $info->getType();
+        if ($criteriaDTO->type) {
+            $criteria[] = "Type: " . $criteriaDTO->type;
         }
 
-        if ($info->getPriority()) {
-            $criteria[] = "Priority: " . $info->getPriority();
+        if ($criteriaDTO->priority) {
+            $criteria[] = "Priority: " . $criteriaDTO->priority;
         }
 
-        if ($info->getPermissions()) {
-            $criteria[] = "Permissions: " . $info->getPermissions();
+        if ($criteriaDTO->permission) {
+            $criteria[] = "Permissions: " . $criteriaDTO->permission;
         }
 
         return implode(", ", $criteria);

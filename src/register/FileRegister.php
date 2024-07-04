@@ -3,6 +3,7 @@
 namespace devatmaliance\file_service\register;
 
 use devatmaliance\file_service\file\path\Path;
+use devatmaliance\file_service\file\path\RelativePath;
 use devatmaliance\file_service\register\client\FileRegisterClient;
 use devatmaliance\file_service\register\event\FailedFileRegistrationEvent;
 use devatmaliance\file_service\utility\FileUtility;
@@ -19,7 +20,7 @@ class FileRegister
         $this->dispatcher = $dispatcher;
     }
 
-    public function register(Path $filePath, Path $aliasPath): Path
+    public function register(Path $filePath, RelativePath $aliasPath): Path
     {
         try {
             $aliasPath = $this->client->register($filePath, $aliasPath);
@@ -44,8 +45,8 @@ class FileRegister
         return Path::fromPath($this->client->getBaseUrl());
     }
 
-    public function aliasExists(Path $aliasPath): bool
+    public function aliasExists(RelativePath $aliasPath): bool
     {
-        return $this->client->aliasExists($aliasPath->getRelativePath());
+        return $this->client->aliasExists($aliasPath);
     }
 }

@@ -3,6 +3,7 @@
 namespace devatmaliance\file_service\register\event;
 
 use devatmaliance\file_service\file\path\Path;
+use devatmaliance\file_service\file\path\RelativePath;
 use Symfony\Contracts\EventDispatcher\Event;
 
 final class FailedFileRegistrationEvent extends Event implements FileRegistrationEventAdapter
@@ -10,10 +11,10 @@ final class FailedFileRegistrationEvent extends Event implements FileRegistratio
     const NAME = 'file.registration_failed';
 
     private Path $filePath;
-    private Path $aliasPath;
+    private RelativePath $aliasPath;
     private \Throwable $exception;
 
-    public function __construct(Path $filePath, Path $aliasPath, \Throwable $exception)
+    public function __construct(Path $filePath, RelativePath $aliasPath, \Throwable $exception)
     {
         $this->filePath = $filePath;
         $this->aliasPath = $aliasPath;
@@ -25,7 +26,7 @@ final class FailedFileRegistrationEvent extends Event implements FileRegistratio
         return $this->filePath;
     }
 
-    public function getAliasPath(): Path
+    public function getAliasPath(): RelativePath
     {
         return $this->aliasPath;
     }
