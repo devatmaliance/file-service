@@ -24,21 +24,21 @@ class DefaultStorageManager implements StorageManager
     {
         return $this->execute(function () use ($file) {
             return $this->storage->write($file);
-        }, 'fileSystem-storage', 'Не удалось сохранить файл!');
+        }, 'storage-write', 'Не удалось сохранить файл!');
     }
 
     public function read(Path $path): File
     {
         return $this->execute(function () use ($path) {
             return $this->storage->read($path);
-        }, 'fileSystem-main', 'Не удалось прочитать файл!');
+        }, 'storage-read', 'Не удалось прочитать файл!');
     }
 
     public function checkAvailability(File $file): array
     {
         return $this->execute(function () use ($file) {
             return ['mainStorage' => $this->storage->checkAvailability($file)];
-        }, 'fileSystem-storage', 'Не удалось проверить доступность файла!');
+        }, 'storage-checkAvailability', 'Не удалось проверить доступность файла!');
     }
 
     private function execute(callable $operation, string $logCategory, string $errorMessage)

@@ -37,7 +37,7 @@ class FailoverStorageManager implements StorageManager
 
         $path = $this->executeOnStorages(function (Storage $storage) use ($file) {
             return $storage->write($file);
-        }, $criteria, 'fileSystem-storage');
+        }, $criteria, 'storage-write');
 
         if (!$path) {
             throw new FileNotFoundException('Не удалось найти подходящее хранилище для записи файла.');
@@ -61,7 +61,7 @@ class FailoverStorageManager implements StorageManager
 
         $file = $this->executeOnStorages(function (Storage $storage) use ($path) {
             return $storage->read($path);
-        }, $criteria, 'fileSystem-storage');
+        }, $criteria, 'storage-read');
 
         if (!$file) {
             throw new FileNotFoundException('Файл не найден.');
@@ -79,7 +79,7 @@ class FailoverStorageManager implements StorageManager
         $storagesState = [];
         $this->executeOnStorages(function (Storage $storage) use ($file, &$storagesState) {
             $storagesState[$storage->getConfig()->getBaseUrl()] = $storage->checkAvailability($file);
-        }, $criteria, 'fileSystem-storage');
+        }, $criteria, 'storage-checkAvailability');
 
         return $storagesState;
     }
@@ -96,7 +96,7 @@ class FailoverStorageManager implements StorageManager
                 }
             }
         } catch (\Throwable $exception) {
-            $this->logError($exception, 'fileSystem-main');
+            $this->logError($exception, 'storage-find');
         }
 
         return null;
