@@ -11,8 +11,10 @@ class CloudStorageConfiguration extends BaseStorageConfiguration
     private string $region;
     private string $key;
     private string $secret;
+    private string $endpoint;
 
     public function __construct(
+        string $endpoint,
         string $baseUrl,
         string $type,
         int    $priority,
@@ -24,6 +26,7 @@ class CloudStorageConfiguration extends BaseStorageConfiguration
         string $secret
     )
     {
+        $this->endpoint = $endpoint;
         $this->bucket = $bucket;
         $this->version = $version;
         $this->region = $region;
@@ -46,7 +49,7 @@ class CloudStorageConfiguration extends BaseStorageConfiguration
                 'key' => $this->key,
                 'secret' => $this->secret
             ],
-            'endpoint' => $this->baseUrl,
+            'endpoint' => $this->endpoint,
             'bucket' => $this->bucket,
         ];
     }

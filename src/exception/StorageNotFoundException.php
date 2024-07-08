@@ -22,19 +22,19 @@ class StorageNotFoundException extends \Exception
     {
         $criteria = [];
 
-        if ($criteriaDTO->baseUrl) {
+        if (!empty($criteriaDTO->baseUrl)) {
             $criteria[] = "BaseUrl: " . $criteriaDTO->baseUrl;
         }
 
-        if ($criteriaDTO->type) {
+        if (!empty($criteriaDTO->type)) {
             $criteria[] = "Type: " . $criteriaDTO->type;
         }
 
-        if ($criteriaDTO->priority) {
+        if (!empty($criteriaDTO->priority)) {
             $criteria[] = "Priority: " . $criteriaDTO->priority;
         }
 
-        if ($criteriaDTO->permission) {
+        if (!empty($criteriaDTO->permission)) {
             $criteria[] = "Permissions: " . $criteriaDTO->permission;
         }
 

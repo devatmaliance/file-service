@@ -48,4 +48,9 @@ class FileRegister
     {
         return $this->client->aliasExists($aliasPath);
     }
+
+    public function isRegisteredFile(Path $path): bool
+    {
+        return $path->getBaseUrl()->getHost()->get() === $this->getBaseUrl()->get();
+    }
 }

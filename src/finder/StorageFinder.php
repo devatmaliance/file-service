@@ -40,19 +40,29 @@ class StorageFinder
 
     private function matchesStorage(Storage $storage, StorageCriteriaDTO $criteriaDTO): bool
     {
-        if (!empty($criteriaDTO->baseUrl) && $storage->getConfig()->getBaseUrl() !== $criteriaDTO->baseUrl) {
+        $config = $storage->getConfig();
+
+        if ($config->isDefaultStorage() === $criteriaDTO->defaultStorage) {
+            return true;
+        }
+
+        if (!empty($criteriaDTO->category) && in_array($criteriaDTO->category, $config->getCategories())) {
             return false;
         }
 
-        if (!empty($criteriaDTO->type) && $storage->getConfig()->getType() !== $criteriaDTO->type) {
+        if (!empty($criteriaDTO->baseUrl) && $config->getBaseUrl() !== $criteriaDTO->baseUrl) {
             return false;
         }
 
-        if (!empty($criteriaDTO->priority) && $storage->getConfig()->getPriority() !== $criteriaDTO->priority) {
+        if (!empty($criteriaDTO->type) && $config->getType() !== $criteriaDTO->type) {
             return false;
         }
 
-        if (!empty($criteriaDTO->permission) && $storage->getConfig()->getPermissions() !== $criteriaDTO->permission) {
+        if (!empty($criteriaDTO->priority) && $config->getPriority() !== $criteriaDTO->priority) {
+            return false;
+        }
+
+        if (!empty($criteriaDTO->permission) && $config->getPermissions() !== $criteriaDTO->permission) {
             return false;
         }
 

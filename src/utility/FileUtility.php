@@ -24,7 +24,7 @@ class FileUtility
 
     public static function getScheme(string $path): string
     {
-        return parse_url($path, PHP_URL_SCHEME);
+        return (string)parse_url($path, PHP_URL_SCHEME);
     }
 
     public static function getHost(string $path): string

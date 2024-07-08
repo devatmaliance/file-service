@@ -4,48 +4,55 @@ namespace devatmaliance\file_service;
 
 use devatmaliance\file_service\file\File;
 use devatmaliance\file_service\file\path\Path;
-use devatmaliance\file_service\register\FileRegister;
+use devatmaliance\file_service\file\path\RelativePath;
 use devatmaliance\file_service\storage\Storage;
+use Psr\Log\LoggerInterface;
 use RuntimeException;
-use Yii;
 
 class DefaultStorageManager implements StorageManager
 {
     private Storage $storage;
-    private FileRegister $fileRegister;
+    private LoggerInterface $logger;
 
-    public function __construct(Storage $storage, FileRegister $fileRegister)
+    public function __construct(Storage $storage, LoggerInterface $logger)
     {
         $this->storage = $storage;
-        $this->fileRegister = $fileRegister;
+        $this->logger = $logger;
     }
 
-    public function write(File $file, Path $aliasPath): Path
+    public function write(File $file, RelativePath $aliasPath): Path
     {
-        try {
-            $filePath = $this->storage->write($file);
-            return $this->fileRegister->registerFile($filePath, $aliasPath);
-        } catch (\Throwable $exception) {
-            Yii::error($exception->getMessage(), "fileSystem-storage");
-        }
-
-        throw new RuntimeException('Не удалось сохранить файл!');
+        return $this->execute(function () use ($file) {
+            return $this->storage->write($file);
+        }, 'fileSystem-storage', 'Не удалось сохранить файл!');
     }
 
     public function read(Path $path): File
     {
-        try {
+        return $this->execute(function () use ($path) {
             return $this->storage->read($path);
-        } catch (\Throwable $exception) {
-            Yii::error($exception->getMessage(), "fileSystem-main");
-        }
-
-        throw new RuntimeException('Не удалось прочитать файл!');
+        }, 'fileSystem-main', 'Не удалось прочитать файл!');
     }
 
     public function checkAvailability(File $file): array
     {
-        $storages['mainStorage'] = $this->storage->checkAvailability($file);
-        return $storages;
+        return $this->execute(function () use ($file) {
+            return ['mainStorage' => $this->storage->checkAvailability($file)];
+        }, 'fileSystem-storage', 'Не удалось проверить доступность файла!');
+    }
+
+    private function execute(callable $operation, string $logCategory, string $errorMessage)
+    {
+        try {
+            return $operation();
+        } catch (\Throwable $exception) {
+            $this->logError($exception, $logCategory);
+            throw new RuntimeException($errorMessage);
+        }
+    }
+
+    private function logError(\Throwable $exception, string $category): void
+    {
+        $this->logger->error($exception->getMessage(), ["category" => $category]);
     }
 }

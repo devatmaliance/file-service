@@ -11,15 +11,19 @@ abstract class BaseStorageConfiguration
 
     protected string $type;
     protected string $baseUrl;
+    protected array $categories;
     protected int $priority;
     protected int $permissions;
+    protected bool $default;
 
-    public function __construct(string $baseUrl, string $type, int $priority, int $permissions)
+    public function __construct(string $baseUrl, string $type, int $priority, int $permissions, bool $default, array $categories = [])
     {
         $this->baseUrl = $baseUrl;
         $this->type = $type;
         $this->priority = $priority;
         $this->permissions = $permissions;
+        $this->default = $default;
+        $this->categories = $categories;
     }
 
     public function getType(): string
@@ -40,5 +44,15 @@ abstract class BaseStorageConfiguration
     public function getPermissions(): int
     {
         return $this->permissions;
+    }
+
+    public function getCategories(): array
+    {
+        return $this->categories;
+    }
+
+    public function isDefaultStorage(): bool
+    {
+        return $this->default;
     }
 }

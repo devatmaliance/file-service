@@ -8,7 +8,8 @@
     "aws/aws-sdk-php": "^3.226",
     "league/mime-type-detection": "^1.15",
     "psr/event-dispatcher": "^1.0",
-    "symfony/event-dispatcher": "^4.4.34"
+    "symfony/event-dispatcher": "^4.4.34",
+    "psr/log": "^1.1"
   },
   "autoload": {
     "psr-4": {
