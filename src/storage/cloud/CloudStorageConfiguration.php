@@ -23,7 +23,9 @@ class CloudStorageConfiguration extends BaseStorageConfiguration
         string $version,
         string $region,
         string $key,
-        string $secret
+        string $secret,
+        bool   $isDefaultStorage = true,
+        array  $categories = []
     )
     {
         $this->endpoint = $endpoint;
@@ -32,7 +34,7 @@ class CloudStorageConfiguration extends BaseStorageConfiguration
         $this->region = $region;
         $this->key = $key;
         $this->secret = $secret;
-        parent::__construct($baseUrl, $type, $priority, $permissions);
+        parent::__construct($baseUrl, $type, $priority, $permissions, $isDefaultStorage, $categories);
     }
 
     public function getBucket(): string
@@ -59,15 +61,18 @@ class CloudStorageConfiguration extends BaseStorageConfiguration
         $reflector = new \ReflectionClass(self::class);
         $constructor = $reflector->getConstructor();
         $parameters = $constructor->getParameters();
-
         $args = [];
+
         foreach ($parameters as $parameter) {
             $name = $parameter->getName();
-            if (!isset($config[$name])) {
+
+            if (isset($config[$name])) {
+                $args[] = $config[$name];
+            } elseif ($parameter->isDefaultValueAvailable()) {
+                $args[] = $parameter->getDefaultValue();
+            } else {
                 throw new \Exception("Missing parameter: $name");
             }
-
-            $args[] = $config[$name];
         }
 
         return $reflector->newInstanceArgs($args);
