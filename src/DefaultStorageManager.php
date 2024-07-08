@@ -37,7 +37,7 @@ class DefaultStorageManager implements StorageManager
     public function checkAvailability(File $file): array
     {
         return $this->execute(function () use ($file) {
-            return ['mainStorage' => $this->storage->checkAvailability($file)];
+            return ['storage' => $this->storage->checkAvailability($file)];
         }, 'storage-checkAvailability', 'Не удалось проверить доступность файла!');
     }
 

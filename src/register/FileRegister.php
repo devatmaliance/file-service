@@ -6,7 +6,10 @@ use devatmaliance\file_service\file\path\Path;
 use devatmaliance\file_service\file\path\RelativePath;
 use devatmaliance\file_service\register\client\FileRegisterClient;
 use devatmaliance\file_service\register\event\FailedFileRegistrationEvent;
+use devatmaliance\file_service\register\exception\BadRequestException;
+use devatmaliance\file_service\register\exception\ConflictException;
 use Psr\EventDispatcher\EventDispatcherInterface;
+use Psr\Log\LoggerInterface;
 
 class FileRegister
 {
@@ -23,6 +26,8 @@ class FileRegister
     {
         try {
             $this->client->registerFile($filePath, $aliasPath);
+        } catch (ConflictException|BadRequestException $exception) {
+            throw $exception;
         } catch (\Throwable $exception) {
             $event = new FailedFileRegistrationEvent($filePath, $aliasPath, $exception);
             $this->dispatcher->dispatch($event);

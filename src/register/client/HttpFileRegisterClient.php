@@ -4,6 +4,9 @@ namespace devatmaliance\file_service\register\client;
 
 use devatmaliance\file_service\file\path\Path;
 use devatmaliance\file_service\file\path\RelativePath;
+use devatmaliance\file_service\register\exception\BadRequestException;
+use devatmaliance\file_service\register\exception\ConflictException;
+use devatmaliance\file_service\register\exception\InternalServerErrorException;
 use devatmaliance\file_service\utility\FileUtility;
 use Exception;
 use GuzzleHttp\Client;
@@ -36,10 +39,24 @@ class HttpFileRegisterClient implements FileRegisterClient
 
     public function registerFile(Path $filePath, Path $aliasPath): void
     {
-        $this->post('locations/register', [
-            'url' => $filePath->get(),
-            'alias' => $aliasPath->getRelativePath()->get(),
-        ]);
+        try {
+            $this->post('locations/register', [
+                'url' => $filePath->get(),
+                'alias' => $aliasPath->getRelativePath()->get(),
+            ]);
+        } catch (Exception $e) {
+            $code = $e->getCode();
+
+            switch ($code) {
+                case 400:
+                    throw new BadRequestException($e);
+                case 409:
+                    throw new ConflictException($e);
+                default:
+                    throw new InternalServerErrorException($e);
+            }
+        }
+
     }
 
     public function reserveAlias(RelativePath $aliasPath): Path
