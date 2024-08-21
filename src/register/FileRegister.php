@@ -2,7 +2,9 @@
 
 namespace devatmaliance\file_service\register;
 
+use common\models\TelegramChannel;
 use devatmaliance\file_service\file\path\Path;
+use devatmaliance\file_service\file\path\PathBaseUrl;
 use devatmaliance\file_service\file\path\RelativePath;
 use devatmaliance\file_service\register\client\FileRegisterClient;
 use devatmaliance\file_service\register\event\FailedFileRegistrationEvent;
@@ -29,8 +31,9 @@ class FileRegister
         } catch (ConflictException|BadRequestException $exception) {
             throw $exception;
         } catch (\Throwable $exception) {
-            $event = new FailedFileRegistrationEvent($filePath, $aliasPath, $exception);
-            $this->dispatcher->dispatch($event);
+            throw $exception;
+//            $event = new FailedFileRegistrationEvent($filePath, $aliasPath, $exception);
+//            $this->dispatcher->dispatch($event);
         }
     }
 
@@ -44,9 +47,9 @@ class FileRegister
         return $this->client->getPathByAlias($path->getRelativePath());
     }
 
-    public function getBaseUrl(): Path
+    public function getBaseUrl(): PathBaseUrl
     {
-        return Path::fromPath($this->client->getBaseUrl());
+        return PathBaseUrl::fromPath($this->client->getBaseUrl());
     }
 
     public function aliasExists(RelativePath $aliasPath): bool
@@ -56,6 +59,6 @@ class FileRegister
 
     public function isRegisteredFile(Path $path): bool
     {
-        return $path->getBaseUrl()->getHost()->get() === $this->getBaseUrl()->get();
+        return $path->getBaseUrl()->getHost()->get() === $this->getBaseUrl()->getHost()->get();
     }
 }

@@ -29,7 +29,7 @@ class FileUtility
 
     public static function getHost(string $path): string
     {
-        return parse_url($path, PHP_URL_HOST);
+        return (string)parse_url($path, PHP_URL_HOST);
     }
 
     public static function getPort(string $path): ?int
@@ -39,7 +39,7 @@ class FileUtility
 
     public static function getMimeTypeByPath(string $path): string
     {
-        return (new FinfoMimeTypeDetector())->detectMimeTypeFromPath($path);
+        return (new FinfoMimeTypeDetector('', new ExtendedExtensionToMimeTypeMap()))->detectMimeTypeFromPath($path);
     }
 
     public static function getMimeTypeByContent(string $content): string
@@ -75,3 +75,4 @@ class FileUtility
         return sprintf('%s/%s', rtrim($base, '/'), ltrim($path, '/'));
     }
 }
+

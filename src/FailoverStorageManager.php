@@ -6,6 +6,7 @@ use devatmaliance\file_service\exception\FileNotFoundException;
 use devatmaliance\file_service\file\File;
 use devatmaliance\file_service\file\path\Path;
 use devatmaliance\file_service\file\path\RelativePath;
+use devatmaliance\file_service\register\exception\ConflictException;
 use devatmaliance\file_service\register\FileRegister;
 use devatmaliance\file_service\finder\StorageCriteriaDTO;
 use devatmaliance\file_service\finder\StorageFinder;
@@ -28,11 +29,16 @@ class FailoverStorageManager implements StorageManager
 
     public function write(File $file, RelativePath $aliasPath, ?StorageCriteriaDTO $criteria = null): Path
     {
-        $alias = $this->register->reserveAlias($aliasPath);
+        try {
+            $alias = $this->register->reserveAlias($aliasPath);
+        } catch (ConflictException $exception ) {
+        } catch (\Throwable $exception) {
+        }
 
         if (!$criteria) {
             $criteria = new StorageCriteriaDTO();
             $criteria->permission = BaseStorageConfiguration::READ_WRITE;
+            $criteria->category = 'main';
         }
 
         $path = $this->executeOnStorages(function (Storage $storage) use ($file) {
@@ -43,15 +49,23 @@ class FailoverStorageManager implements StorageManager
             throw new FileNotFoundException('Не удалось найти подходящее хранилище для записи файла.');
         }
 
-        $this->register->registerFile($path, $alias);
+        try {
+            $this->register->registerFile($path, $alias);
+        } catch (\Throwable $exception) {
+        }
 
-        return $alias;
+        return $path;
+//        return $alias;
     }
 
     public function read(Path $path, ?StorageCriteriaDTO $criteria = null): File
     {
-        if ($this->register->isRegisteredFile($path)) {
-            $path = $this->register->get($path);
+        try {
+            if ($this->register->isRegisteredFile($path)) {
+                $path = $this->register->get($path);
+            }
+        } catch (\Throwable $e) {
+            $this->logError($e, 'get-registered-path');
         }
 
         if (!$criteria) {
@@ -77,13 +91,18 @@ class FailoverStorageManager implements StorageManager
         }
 
         $storagesState = [];
-        $this->executeOnStorages(function (Storage $storage) use ($file, &$storagesState) {
-            $storagesState[$storage->getConfig()->getBaseUrl()] = $storage->checkAvailability($file);
-        }, $criteria, 'storage-checkAvailability');
+
+        $storages = $this->finder->find($criteria);
+        foreach ($storages as $storage) {
+            try {
+                $storagesState[$storage->getConfig()->getBaseUrl()] = $storage->checkAvailability($file);
+            } catch (\Throwable $exception) {
+                $this->logError($exception, 'storage-checkAvailability');
+            }
+        }
 
         return $storagesState;
     }
-
     private function executeOnStorages(callable $operation, StorageCriteriaDTO $criteria, string $logCategory)
     {
         try {

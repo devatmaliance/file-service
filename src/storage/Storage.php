@@ -14,4 +14,6 @@ interface Storage
     public function checkAvailability(File $file): bool;
 
     public function getConfig(): BaseStorageConfiguration;
+
+    public function remove(Path $path): void;
 }

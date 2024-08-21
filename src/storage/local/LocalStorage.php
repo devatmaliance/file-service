@@ -64,4 +64,10 @@ class LocalStorage implements Storage
     {
         return true;
     }
+
+    public function remove(Path $path): void
+    {
+        
+    }
+    
 }

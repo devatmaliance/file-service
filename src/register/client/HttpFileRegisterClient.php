@@ -61,11 +61,24 @@ class HttpFileRegisterClient implements FileRegisterClient
 
     public function reserveAlias(RelativePath $aliasPath): Path
     {
-        $response = $this->post('locations/reserve', [
-            'alias' => $aliasPath->get()
-        ]);
+        try {
+            $response = $this->post('locations/reserve', [
+                'alias' => $aliasPath->get()
+            ]);
 
-        return Path::fromPath(FileUtility::concatenatePaths($response['host'], $response['alias']));
+            return Path::fromPath(FileUtility::concatenatePaths($response['host'], $response['alias']));
+        } catch (Exception $e) {
+            $code = $e->getCode();
+
+            switch ($code) {
+                case 400:
+                    throw new BadRequestException($e);
+                case 409:
+                    throw new ConflictException($e);
+                default:
+                    throw new InternalServerErrorException($e);
+            }
+        }
     }
 
     public function getPathByAlias(RelativePath $relativePath): Path

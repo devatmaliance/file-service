@@ -3,6 +3,7 @@
 namespace devatmaliance\file_service\storage\cloud;
 
 use Aws\S3\S3Client;
+use common\models\TelegramChannel;
 use devatmaliance\file_service\exception\FileReadException;
 use devatmaliance\file_service\file\Content;
 use devatmaliance\file_service\file\File;
@@ -45,13 +46,13 @@ class CloudStorage implements Storage
 
     public function read(Path $path): File
     {
-        $relativePath = ltrim($path->getRelativePath()->get(), '/');
-        $result = $this->client->getObject([
-            'Bucket' => $this->bucket,
-            'Key' => $relativePath,
-        ]);
-
         try {
+            $relativePath = ltrim($path->getRelativePath()->get(), '/');
+            $result = $this->client->getObject([
+                'Bucket' => $this->bucket,
+                'Key' => $relativePath,
+            ]); 
+            
             $content = $result['Body']->getContents();
             if (!is_string($content)) {
                 throw new FileReadException('Failed to read file: ' . $relativePath);
@@ -70,7 +71,7 @@ class CloudStorage implements Storage
     {
         $this->client->deleteObject([
             'Bucket' => $this->bucket,
-            'Key' => $path->get(),
+            'Key' => $path->getRelativePath()->get(),
         ]);
     }
 

@@ -46,7 +46,7 @@ class StorageFinder
             return true;
         }
 
-        if (!empty($criteriaDTO->category) && in_array($criteriaDTO->category, $config->getCategories())) {
+        if (!empty($criteriaDTO->category) && !in_array($criteriaDTO->category, $config->getCategories())) {
             return false;
         }
 
