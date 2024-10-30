@@ -4,7 +4,7 @@
   "type": "library",
   "license": "MIT",
   "require": {
-    "php": "^7.4.0",
+    "php": ">=7.4.0",
     "aws/aws-sdk-php": "^3.226",
     "league/mime-type-detection": "^1.15",
     "psr/event-dispatcher": "^1.0",
