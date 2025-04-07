@@ -41,7 +41,7 @@ class HttpFileRegisterClient implements FileRegisterClient
     public function registerFile(Path $filePath, RelativePath $aliasPath): Path
     {
         try {
-            $response = $this->post('locations/register', [
+            $response = $this->post('locations', [
                 'url' => $filePath->get(),
                 'alias' => $aliasPath->get()
             ]);
