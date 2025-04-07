@@ -7,11 +7,11 @@ use devatmaliance\file_service\file\path\RelativePath;
 
 interface FileRegisterClient
 {
-    public function registerFile(Path $filePath, Path $aliasPath): void;
+    public function registerFile(Path $filePath, RelativePath $aliasPath): Path;
 
     public function getPathByAlias(RelativePath $relativePath): Path;
 
     public function aliasExists(RelativePath $getRelativePath): bool;
 
-    public function reserveAlias(RelativePath $aliasPath): Path;
+    public function compareHosts(Path $path1, Path $path2): bool;
 }

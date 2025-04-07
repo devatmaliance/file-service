@@ -69,10 +69,13 @@ class FileUtility
         return preg_replace($regExp, '', trim($dirtyText));
     }
 
-
     public static function concatenatePaths(string $base, string $path): string
     {
         return sprintf('%s/%s', rtrim($base, '/'), ltrim($path, '/'));
     }
-}
 
+    public static function isWebUrl(string $path): bool
+    {
+        return filter_var($path, FILTER_VALIDATE_URL) !== false;
+    }
+}

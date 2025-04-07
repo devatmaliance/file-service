@@ -13,4 +13,6 @@ interface StorageManager
     public function checkAvailability(File $file): array;
 
     public function read(Path $path): File;
+
+    public function remove(Path $path): void;
 }

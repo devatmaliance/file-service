@@ -12,6 +12,7 @@ use devatmaliance\file_service\register\exception\BadRequestException;
 use devatmaliance\file_service\register\exception\ConflictException;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
+use Throwable;
 
 class FileRegister
 {
@@ -24,22 +25,13 @@ class FileRegister
         $this->dispatcher = $dispatcher;
     }
 
-    public function registerFile(Path $filePath, Path $aliasPath): void
+    public function registerFile(Path $filePath, RelativePath $aliasPath): Path
     {
         try {
-            $this->client->registerFile($filePath, $aliasPath);
-        } catch (ConflictException|BadRequestException $exception) {
+            return $this->client->registerFile($filePath, $aliasPath);
+        } catch (Throwable $exception) {
             throw $exception;
-        } catch (\Throwable $exception) {
-            throw $exception;
-//            $event = new FailedFileRegistrationEvent($filePath, $aliasPath, $exception);
-//            $this->dispatcher->dispatch($event);
         }
-    }
-
-    public function reserveAlias(RelativePath $aliasPath): Path
-    {
-        return $this->client->reserveAlias($aliasPath);
     }
 
     public function get(Path $path): Path
@@ -60,5 +52,10 @@ class FileRegister
     public function isRegisteredFile(Path $path): bool
     {
         return $path->getBaseUrl()->getHost()->get() === $this->getBaseUrl()->getHost()->get();
+    }
+
+    public function compareHosts(Path $path1, Path $path2): bool
+    {
+        return $this->client->compareHosts($path1, $path2);
     }
 }

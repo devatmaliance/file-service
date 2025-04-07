@@ -3,18 +3,21 @@
 namespace devatmaliance\file_service;
 
 use devatmaliance\file_service\exception\FileNotFoundException;
+use devatmaliance\file_service\exception\StorageNotFoundException;
 use devatmaliance\file_service\file\File;
 use devatmaliance\file_service\file\path\Path;
 use devatmaliance\file_service\file\path\RelativePath;
-use devatmaliance\file_service\register\exception\ConflictException;
 use devatmaliance\file_service\register\FileRegister;
 use devatmaliance\file_service\finder\StorageCriteriaDTO;
 use devatmaliance\file_service\finder\StorageFinder;
 use devatmaliance\file_service\storage\BaseStorageConfiguration;
 use devatmaliance\file_service\storage\Storage;
+use devatmaliance\file_service\utility\FileUtility;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
+use Throwable;
 
-class FailoverStorageManager implements StorageManager
+final class FailoverStorageManager implements StorageManager
 {
     private StorageFinder $finder;
     private FileRegister $register;
@@ -29,33 +32,38 @@ class FailoverStorageManager implements StorageManager
 
     public function write(File $file, RelativePath $aliasPath, ?StorageCriteriaDTO $criteria = null): Path
     {
-        try {
-            $alias = $this->register->reserveAlias($aliasPath);
-        } catch (ConflictException $exception ) {
-        } catch (\Throwable $exception) {
-        }
-
         if (!$criteria) {
             $criteria = new StorageCriteriaDTO();
             $criteria->permission = BaseStorageConfiguration::READ_WRITE;
             $criteria->category = 'main';
         }
 
-        $path = $this->executeOnStorages(function (Storage $storage) use ($file) {
-            return $storage->write($file);
-        }, $criteria, 'storage-write');
+        $storages = $this->finder->find($criteria);
+        if (empty($storages)) {
+            throw StorageNotFoundException::withStorageCriteria($criteria);
+        }
 
-        if (!$path) {
-            throw new FileNotFoundException('Не удалось найти подходящее хранилище для записи файла.');
+        /** @var Storage $storage */
+        foreach ($storages as $storage) {
+            try {
+                $path = $storage->write($file);
+                break;
+            } catch (Throwable $exception) {
+                $this->logError($exception, 'storage-write');
+            }
+        }
+
+        if (empty($path)) {
+            throw new RuntimeException('Failed to write file to any available storage');
         }
 
         try {
-            $this->register->registerFile($path, $alias);
-        } catch (\Throwable $exception) {
+            return $this->register->registerFile($path, $aliasPath);
+        } catch (Throwable $e) {
+            $this->logError($e, 'register');
         }
 
         return $path;
-//        return $alias;
     }
 
     public function read(Path $path, ?StorageCriteriaDTO $criteria = null): File
@@ -64,7 +72,7 @@ class FailoverStorageManager implements StorageManager
             if ($this->register->isRegisteredFile($path)) {
                 $path = $this->register->get($path);
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->logError($e, 'get-registered-path');
         }
 
@@ -73,15 +81,52 @@ class FailoverStorageManager implements StorageManager
         }
         $criteria->baseUrl = $path->getBaseUrl()->get();
 
-        $file = $this->executeOnStorages(function (Storage $storage) use ($path) {
-            return $storage->read($path);
-        }, $criteria, 'storage-read');
+        $storages = $this->finder->find($criteria);
+        if (empty($storages)) {
+            throw StorageNotFoundException::withStorageCriteria($criteria);
+        }
 
-        if (!$file) {
-            throw new FileNotFoundException('Файл не найден.');
+        /** @var Storage $storage */
+        foreach ($storages as $storage) {
+            try {
+                $file = $storage->read($path);
+                break;
+            } catch (Throwable $exception) {
+                $this->logError($exception, 'storage-write');
+            }
+        }
+
+        if (empty($file)) {
+            throw new FileNotFoundException(sprintf('File "%s" not found', $path->get()));
         }
 
         return $file;
+    }
+
+    public function remove(Path $path): void
+    {
+        $criteria = new StorageCriteriaDTO();
+
+        if (FileUtility::isWebUrl($path->get())) {
+            if ($this->register->isRegisteredFile($path)) {
+                $path = $this->register->get($path);
+            }
+
+            $criteria->baseUrl = $path->getBaseUrl()->get();
+        } else {
+            $criteria->type = BaseStorageConfiguration::LOCAL_TYPE;
+        }
+
+        $storages = $this->finder->find($criteria);
+        if (empty($storages)) {
+            throw StorageNotFoundException::withStorageCriteria($criteria);
+        }
+
+        /** @var Storage $storage */
+        foreach ($storages as $storage) {
+            $storage->remove($path);
+            break;
+        }
     }
 
     public function checkAvailability(File $file, ?StorageCriteriaDTO $criteria = null): array
@@ -93,35 +138,22 @@ class FailoverStorageManager implements StorageManager
         $storagesState = [];
 
         $storages = $this->finder->find($criteria);
+        if (empty($storages)) {
+            throw StorageNotFoundException::withStorageCriteria($criteria);
+        }
+
         foreach ($storages as $storage) {
             try {
                 $storagesState[$storage->getConfig()->getBaseUrl()] = $storage->checkAvailability($file);
-            } catch (\Throwable $exception) {
+            } catch (Throwable $exception) {
                 $this->logError($exception, 'storage-checkAvailability');
             }
         }
 
         return $storagesState;
     }
-    private function executeOnStorages(callable $operation, StorageCriteriaDTO $criteria, string $logCategory)
-    {
-        try {
-            $storages = $this->finder->find($criteria);
-            foreach ($storages as $storage) {
-                try {
-                    return $operation($storage);
-                } catch (\Throwable $exception) {
-                    $this->logError($exception, $logCategory);
-                }
-            }
-        } catch (\Throwable $exception) {
-            $this->logError($exception, 'storage-find');
-        }
 
-        return null;
-    }
-
-    private function logError(\Throwable $exception, string $category): void
+    private function logError(Throwable $exception, string $category): void
     {
         $this->logger->error($exception->getMessage(), ["category" => $category]);
     }

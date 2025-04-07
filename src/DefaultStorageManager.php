@@ -34,6 +34,13 @@ class DefaultStorageManager implements StorageManager
         }, 'storage-read', 'Не удалось прочитать файл!');
     }
 
+    public function remove(Path $path): void
+    {
+        $this->execute(function () use ($path) {
+            return $this->storage->read($path);
+        }, 'storage-remove-file', 'Не удалось удалить файл!');
+    }
+
     public function checkAvailability(File $file): array
     {
         return $this->execute(function () use ($file) {

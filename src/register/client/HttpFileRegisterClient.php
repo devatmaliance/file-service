@@ -12,6 +12,7 @@ use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use Psr\Http\Message\ResponseInterface;
+use RuntimeException;
 
 class HttpFileRegisterClient implements FileRegisterClient
 {
@@ -37,32 +38,11 @@ class HttpFileRegisterClient implements FileRegisterClient
         return $this->baseUrl;
     }
 
-    public function registerFile(Path $filePath, Path $aliasPath): void
+    public function registerFile(Path $filePath, RelativePath $aliasPath): Path
     {
         try {
-            $this->post('locations/register', [
+            $response = $this->post('locations/register', [
                 'url' => $filePath->get(),
-                'alias' => $aliasPath->getRelativePath()->get(),
-            ]);
-        } catch (Exception $e) {
-            $code = $e->getCode();
-
-            switch ($code) {
-                case 400:
-                    throw new BadRequestException($e);
-                case 409:
-                    throw new ConflictException($e);
-                default:
-                    throw new InternalServerErrorException($e);
-            }
-        }
-
-    }
-
-    public function reserveAlias(RelativePath $aliasPath): Path
-    {
-        try {
-            $response = $this->post('locations/reserve', [
                 'alias' => $aliasPath->get()
             ]);
 
@@ -73,12 +53,11 @@ class HttpFileRegisterClient implements FileRegisterClient
             switch ($code) {
                 case 400:
                     throw new BadRequestException($e);
-                case 409:
-                    throw new ConflictException($e);
                 default:
                     throw new InternalServerErrorException($e);
             }
         }
+
     }
 
     public function getPathByAlias(RelativePath $relativePath): Path
@@ -95,6 +74,24 @@ class HttpFileRegisterClient implements FileRegisterClient
         return $this->head('locations', [
             'alias' => $relativePath->get()
         ]);
+    }
+
+    public function compareHosts(Path $path1, Path $path2): bool
+    {
+        try {
+            $response = $this->post('hosts/compare', [
+                'host1' => $path1->get(),
+                'host2' => $path2->get()
+            ]);
+
+            if (!array_key_exists('compare', $response)) {
+                throw new RuntimeException('Server response is missing required "compare" field');
+            }
+
+            return (bool) $response['compare'];
+        } catch (Exception $e) {
+            throw $e;
+        }
     }
 
     /**
