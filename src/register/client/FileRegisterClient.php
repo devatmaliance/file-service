@@ -10,8 +10,4 @@ interface FileRegisterClient
     public function registerFile(Path $filePath, RelativePath $aliasPath): Path;
 
     public function getPathByAlias(RelativePath $relativePath): Path;
-
-    public function aliasExists(RelativePath $getRelativePath): bool;
-
-    public function compareHosts(Path $path1, Path $path2): bool;
 }
