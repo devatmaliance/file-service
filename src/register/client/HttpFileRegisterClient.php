@@ -12,7 +12,6 @@ use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use Psr\Http\Message\ResponseInterface;
-use RuntimeException;
 
 class HttpFileRegisterClient implements FileRegisterClient
 {
@@ -53,11 +52,12 @@ class HttpFileRegisterClient implements FileRegisterClient
             switch ($code) {
                 case 400:
                     throw new BadRequestException($e);
+                case 409:
+                    throw new ConflictException($e);
                 default:
                     throw new InternalServerErrorException($e);
             }
         }
-
     }
 
     public function getPathByAlias(RelativePath $relativePath): Path
@@ -67,54 +67,6 @@ class HttpFileRegisterClient implements FileRegisterClient
         ]);
 
         return Path::fromPath(FileUtility::concatenatePaths($response['host'], $response['relativePath']));
-    }
-
-    public function aliasExists(RelativePath $relativePath): bool
-    {
-        return $this->head('locations', [
-            'alias' => $relativePath->get()
-        ]);
-    }
-
-    public function compareHosts(Path $path1, Path $path2): bool
-    {
-        try {
-            $response = $this->post('hosts/compare', [
-                'host1' => $path1->get(),
-                'host2' => $path2->get()
-            ]);
-
-            if (!array_key_exists('compare', $response)) {
-                throw new RuntimeException('Server response is missing required "compare" field');
-            }
-
-            return (bool) $response['compare'];
-        } catch (Exception $e) {
-            throw $e;
-        }
-    }
-
-    /**
-     * Отправляет HEAD запрос с указанными параметрами.
-     *
-     * @param string $uri
-     * @param array $params
-     * @return bool
-     * @throws RequestException
-     */
-    public function head(string $uri, array $params = []): bool
-    {
-        try {
-            $response = $this->client->head($uri, [
-                'query' => $params,
-            ]);
-            return $response->getStatusCode() === 200;
-        } catch (RequestException $e) {
-            if ($e->getResponse() && $e->getResponse()->getStatusCode() === 404) {
-                return false;
-            }
-            throw $e;
-        }
     }
 
     /**

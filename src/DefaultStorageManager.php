@@ -4,7 +4,6 @@ namespace devatmaliance\file_service;
 
 use devatmaliance\file_service\file\File;
 use devatmaliance\file_service\file\path\Path;
-use devatmaliance\file_service\file\path\RelativePath;
 use devatmaliance\file_service\storage\Storage;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
@@ -20,7 +19,7 @@ class DefaultStorageManager implements StorageManager
         $this->logger = $logger;
     }
 
-    public function write(File $file, RelativePath $aliasPath): Path
+    public function write(File $file): Path
     {
         return $this->execute(function () use ($file) {
             return $this->storage->write($file);
@@ -32,13 +31,6 @@ class DefaultStorageManager implements StorageManager
         return $this->execute(function () use ($path) {
             return $this->storage->read($path);
         }, 'storage-read', 'Не удалось прочитать файл!');
-    }
-
-    public function remove(Path $path): void
-    {
-        $this->execute(function () use ($path) {
-            return $this->storage->read($path);
-        }, 'storage-remove-file', 'Не удалось удалить файл!');
     }
 
     public function checkAvailability(File $file): array

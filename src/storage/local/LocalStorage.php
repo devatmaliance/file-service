@@ -2,7 +2,6 @@
 
 namespace devatmaliance\file_service\storage\local;
 
-use BadMethodCallException;
 use devatmaliance\file_service\exception\FileNotFoundException;
 use devatmaliance\file_service\exception\FileReadException;
 use devatmaliance\file_service\file\Content;
@@ -33,8 +32,6 @@ class LocalStorage implements Storage
 
     public function write(File $file): Path
     {
-        throw new BadMethodCallException('Method write() is disabled');
-
         $currentPath = $file->getPath()->get();
         $directoryPath = FileUtility::concatenatePaths($this->storagePath, pathinfo($currentPath, PATHINFO_DIRNAME));
 

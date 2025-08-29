@@ -6,18 +6,16 @@ use devatmaliance\file_service\exception\FileNotFoundException;
 use devatmaliance\file_service\exception\StorageNotFoundException;
 use devatmaliance\file_service\file\File;
 use devatmaliance\file_service\file\path\Path;
-use devatmaliance\file_service\file\path\RelativePath;
 use devatmaliance\file_service\register\FileRegister;
 use devatmaliance\file_service\finder\StorageCriteriaDTO;
 use devatmaliance\file_service\finder\StorageFinder;
 use devatmaliance\file_service\storage\BaseStorageConfiguration;
 use devatmaliance\file_service\storage\Storage;
-use devatmaliance\file_service\utility\FileUtility;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Throwable;
 
-final class FailoverStorageManager implements StorageManager
+class FailoverStorageManager implements StorageManager
 {
     private StorageFinder $finder;
     private FileRegister $register;
@@ -30,7 +28,7 @@ final class FailoverStorageManager implements StorageManager
         $this->logger = $logger;
     }
 
-    public function write(File $file, RelativePath $aliasPath, ?StorageCriteriaDTO $criteria = null): Path
+    public function write(File $file, ?StorageCriteriaDTO $criteria = null): Path
     {
         if (!$criteria) {
             $criteria = new StorageCriteriaDTO();
@@ -55,12 +53,6 @@ final class FailoverStorageManager implements StorageManager
 
         if (empty($path)) {
             throw new RuntimeException('Failed to write file to any available storage');
-        }
-
-        try {
-            return $this->register->registerFile($path, $aliasPath);
-        } catch (Throwable $e) {
-            $this->logError($e, 'register');
         }
 
         return $path;
@@ -101,32 +93,6 @@ final class FailoverStorageManager implements StorageManager
         }
 
         return $file;
-    }
-
-    public function remove(Path $path): void
-    {
-        $criteria = new StorageCriteriaDTO();
-
-        if (FileUtility::isWebUrl($path->get())) {
-            if ($this->register->isRegisteredFile($path)) {
-                $path = $this->register->get($path);
-            }
-
-            $criteria->baseUrl = $path->getBaseUrl()->get();
-        } else {
-            $criteria->type = BaseStorageConfiguration::LOCAL_TYPE;
-        }
-
-        $storages = $this->finder->find($criteria);
-        if (empty($storages)) {
-            throw StorageNotFoundException::withStorageCriteria($criteria);
-        }
-
-        /** @var Storage $storage */
-        foreach ($storages as $storage) {
-            $storage->remove($path);
-            break;
-        }
     }
 
     public function checkAvailability(File $file, ?StorageCriteriaDTO $criteria = null): array
