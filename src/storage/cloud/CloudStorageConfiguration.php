@@ -12,28 +12,31 @@ class CloudStorageConfiguration extends BaseStorageConfiguration
     private string $key;
     private string $secret;
     private string $endpoint;
+    private bool $usePathStyleEndpoint;
 
     public function __construct(
         string $endpoint,
         string $baseUrl,
         string $type,
-        int    $priority,
-        int    $permissions,
+        int $priority,
+        int $permissions,
         string $bucket,
         string $version,
         string $region,
         string $key,
         string $secret,
-        bool   $isDefaultStorage = true,
-        array  $categories = []
-    )
-    {
+        bool $isDefaultStorage = true,
+        array $categories = [],
+        bool $usePathStyleEndpoint = false
+    ) {
         $this->endpoint = $endpoint;
         $this->bucket = $bucket;
         $this->version = $version;
         $this->region = $region;
         $this->key = $key;
         $this->secret = $secret;
+        $this->usePathStyleEndpoint = $usePathStyleEndpoint;
+
         parent::__construct($baseUrl, $type, $priority, $permissions, $isDefaultStorage, $categories);
     }
 
@@ -52,6 +55,7 @@ class CloudStorageConfiguration extends BaseStorageConfiguration
                 'secret' => $this->secret
             ],
             'endpoint' => $this->endpoint,
+            'use_path_style_endpoint' => $this->usePathStyleEndpoint,
             'bucket' => $this->bucket,
         ];
     }
@@ -77,5 +81,4 @@ class CloudStorageConfiguration extends BaseStorageConfiguration
 
         return $reflector->newInstanceArgs($args);
     }
-    // TODO:: fromFile
 }

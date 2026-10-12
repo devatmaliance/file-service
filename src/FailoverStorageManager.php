@@ -36,26 +36,34 @@ class FailoverStorageManager implements StorageManager
             $criteria->category = 'main';
         }
 
-        $storages = $this->finder->find($criteria);
+        $storages = $this->finder->findAvailable($criteria);
+
         if (empty($storages)) {
-            throw StorageNotFoundException::withStorageCriteria($criteria);
+            $storages = $this->finder->find($criteria);
         }
 
+        return $this->writeToStorages($file, $storages);
+    }
+
+    /**
+     * @param Storage[] $storages
+     */
+    private function writeToStorages(File $file, array $storages): Path
+    {
         /** @var Storage $storage */
         foreach ($storages as $storage) {
             try {
                 $path = $storage->write($file);
-                break;
+                $this->finder->markAvailable($storage);
+
+                return $path;
             } catch (Throwable $exception) {
+                $this->finder->markUnavailable($storage);
                 $this->logError($exception, 'storage-write');
             }
         }
 
-        if (empty($path)) {
-            throw new RuntimeException('Failed to write file to any available storage');
-        }
-
-        return $path;
+        throw new RuntimeException('Failed to write file to any available storage');
     }
 
     public function read(Path $path, ?StorageCriteriaDTO $criteria = null): File

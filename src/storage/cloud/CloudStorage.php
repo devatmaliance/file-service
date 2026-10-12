@@ -11,6 +11,7 @@ use devatmaliance\file_service\file\MimeType;
 use devatmaliance\file_service\file\path\Path;
 use devatmaliance\file_service\storage\BaseStorageConfiguration;
 use devatmaliance\file_service\storage\Storage;
+use devatmaliance\file_service\utility\FileUtility;
 
 class CloudStorage implements Storage
 {
@@ -33,7 +34,8 @@ class CloudStorage implements Storage
     public function write(File $file): Path
     {
         $relativePath = ltrim($file->getPath()->getRelativePath()->get(), '/');
-        $result = $this->client->putObject([
+
+        $this->client->putObject([
             'Bucket' => $this->bucket,
             'Key' => $relativePath,
             'Body' => $file->getContent()->get(),
@@ -41,7 +43,10 @@ class CloudStorage implements Storage
             'ContentType' => $file->getMimeType()->get()
         ]);
 
-        return Path::fromPath($result['ObjectURL']);
+        return Path::fromPath(FileUtility::concatenatePaths(
+            $this->config->getBaseUrl(),
+            $relativePath
+        ));
     }
 
     public function read(Path $path): File
